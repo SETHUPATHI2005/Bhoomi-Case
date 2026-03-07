@@ -1,0 +1,18 @@
+# Python cache files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.env
+
+# Application Data (Do not upload local testing data)
+backend/app/data/*.json
+backend/app/admin_uploads.json
+backend/app/uploads/
+
+# OS generated files
+.DS_Store
+Thumbs.db

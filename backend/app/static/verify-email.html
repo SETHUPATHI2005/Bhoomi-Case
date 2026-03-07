@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Email - Bhoomi Land Cases</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+
+        .icon {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #ecf0f1;
+            border-radius: 50%;
+            font-size: 30px;
+        }
+
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            display: none;
+        }
+
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            display: block;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            display: block;
+        }
+
+        .status.loading {
+            background: #d1ecf1;
+            color: #0c5460;
+            display: block;
+        }
+
+        .content {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .content p {
+            color: #555;
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .button {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .button-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .button-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .button-secondary {
+            background: #ecf0f1;
+            color: #2c3e50;
+        }
+
+        .button-secondary:hover {
+            background: #d5dbdb;
+        }
+
+        .footer {
+            text-align: center;
+            color: #7f8c8d;
+            font-size: 13px;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #ecf0f1;
+        }
+
+        .footer a {
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        .details {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            text-align: left;
+            display: none;
+        }
+
+        .details p {
+            margin: 8px 0;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .details strong {
+            color: #2c3e50;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="icon">✉️</div>
+            <h1>Verify Your Email</h1>
+            <p>Please wait while we verify your email address</p>
+        </div>
+
+        <div id="statusMessage" class="status loading">
+            <span class="spinner"></span>
+            <span id="statusText">Verifying email...</span>
+        </div>
+
+        <div id="content" class="content" style="display: none;">
+            <p id="contentText"></p>
+        </div>
+
+        <div id="details" class="details"></div>
+
+        <div id="actions" style="display: none;">
+            <div class="button-group">
+                <a href="/static/login.html" class="button button-primary">Continue to Login</a>
+                <a href="/" class="button button-secondary">Back to Home</a>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Need help? <a href="/">Contact support</a></p>
+        </div>
+    </div>
+
+    <script>
+        async function verifyEmail() {
+            const params = new URLSearchParams(window.location.search);
+            const token = params.get('token');
+
+            if (!token) {
+                showError('No verification token found in URL');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/v1/auth/verify-email', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ token })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showSuccess('Email verified successfully!', 'Your email has been verified. You can now login to your account.');
+                } else {
+                    showError(data.detail || 'Email verification failed');
+                }
+            } catch (error) {
+                showError('An error occurred: ' + error.message);
+            }
+        }
+
+        function showSuccess(title, message) {
+            document.getElementById('statusMessage').style.display = 'none';
+            document.getElementById('content').style.display = 'block';
+            document.getElementById('actions').style.display = 'block';
+
+            const header = document.querySelector('.header h1');
+            const headerDesc = document.querySelector('.header p');
+            const icon = document.querySelector('.icon');
+
+            icon.textContent = '✅';
+            header.textContent = title;
+            headerDesc.textContent = message;
+            header.style.color = '#27ae60';
+        }
+
+        function showError(message) {
+            document.getElementById('statusMessage').classList.remove('loading');
+            document.getElementById('statusMessage').classList.add('error');
+            document.getElementById('statusText').textContent = message;
+            document.getElementById('actions').style.display = 'block';
+
+            const header = document.querySelector('.header h1');
+            const icon = document.querySelector('.icon');
+            icon.textContent = '❌';
+            header.textContent = 'Verification Failed';
+            header.style.color = '#e74c3c';
+        }
+
+        // Auto-verify on page load
+        verifyEmail();
+    </script>
+</body>
+</html>

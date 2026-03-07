@@ -1,0 +1,36 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Admin Upload (MVP)</title></head>
+<body>
+<h1>Admin Upload</h1>
+<p>This is a minimal admin page for uploading a parcel JSON (requires `X-ADMIN-TOKEN` header).</p>
+<form id="uploadForm">
+	<label for="token">Admin token</label>
+	<input id="token" placeholder="enter ADMIN token" />
+	<label for="payload">Parcel JSON</label>
+	<textarea id="payload" rows="10" cols="60">{
+	"village": "NewVillage",
+	"survey_number": "999",
+	"linked_cases": []
+}</textarea>
+	<br />
+	<button id="upload">Upload</button>
+</form>
+<div id="status"></div>
+<script>
+	document.getElementById('uploadForm').addEventListener('submit', async (e)=>{
+		e.preventDefault();
+		const token = document.getElementById('token').value.trim();
+		const payloadRaw = document.getElementById('payload').value;
+		let payload;
+		try{ payload = JSON.parse(payloadRaw) }catch(err){ document.getElementById('status').innerText = 'Invalid JSON'; return }
+		document.getElementById('status').innerText = 'Uploading...';
+		try{
+			const r = await fetch('/api/v1/admin/upload', {method:'POST', headers: {'Content-Type':'application/json','X-ADMIN-TOKEN': token}, body: JSON.stringify(payload)});
+			const j = await r.json();
+			if(r.status===200) document.getElementById('status').innerText = 'Uploaded.'; else document.getElementById('status').innerText = JSON.stringify(j);
+		}catch(err){ document.getElementById('status').innerText = 'Upload failed'; console.error(err)}
+	})
+</script>
+</body>
+</html>

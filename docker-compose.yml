@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend/app
+      dockerfile: Dockerfile
+    container_name: land-cases-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG=false
+      - ADMIN_TOKEN=${ADMIN_TOKEN:-devtoken123}
+      - JWT_SECRET=${JWT_SECRET:-your-secret-key-change-in-prod}
+      - DATABASE_URL=sqlite:///./land_cases.db
+      - LOG_LEVEL=INFO
+      - SMTP_SERVER=${SMTP_SERVER:-smtp.gmail.com}
+      - SMTP_PORT=${SMTP_PORT:-587}
+      - SMTP_USER=${SMTP_USER:-}
+      - SMTP_PASSWORD=${SMTP_PASSWORD:-}
+      - SENDER_EMAIL=${SENDER_EMAIL:-noreply@bhoomi.local}
+      - SENDER_NAME=${SENDER_NAME:-Bhoomi Land Cases}
+      - ENABLE_EMAIL=${ENABLE_EMAIL:-true}
+      - EMAIL_VERIFICATION_EXPIRY_HOURS=${EMAIL_VERIFICATION_EXPIRY_HOURS:-24}
+      - PASSWORD_RESET_EXPIRY_HOURS=${PASSWORD_RESET_EXPIRY_HOURS:-24}
+    volumes:
+      - ./backend/app:/app
+      - land_cases_data:/app/data
+    depends_on:
+      - db  # Optional, for PostgreSQL
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Optional: PostgreSQL database (uncomment for production)
+  db:
+    image: postgres:15-alpine
+    container_name: land-cases-db
+    environment:
+      POSTGRES_DB: land_cases
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+    volumes:
+      - land_cases_postgres:/var/lib/postgresql/data
+    restart: unless-stopped
+    # Uncomment below line to expose DB (NOT recommended for production)
+    # ports:
+    #   - "5432:5432"
+
+volumes:
+  land_cases_data:
+  land_cases_postgres:
+
+networks:
+  default:
+    name: land-cases-network

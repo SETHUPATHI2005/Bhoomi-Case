@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bhoomi Auth Testing</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+        }
+
+        .test {
+            background: #f9f9f9;
+            padding: 15px;
+            border-left: 4px solid #667eea;
+            margin-bottom: 15px;
+            border-radius: 4px;
+        }
+
+        .test-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .test-result {
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .result-success {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border: 1px solid #81c784;
+        }
+
+        .result-error {
+            background: #ffebee;
+            color: #c62828;
+            border: 1px solid #ef5350;
+        }
+
+        .result-warning {
+            background: #fff3e0;
+            color: #e65100;
+            border: 1px solid #ffb74d;
+        }
+
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-right: 10px;
+        }
+
+        button:hover {
+            background: #5a67d8;
+        }
+
+        .status-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .status-table td {
+            padding: 12px;
+            border: 1px solid #ddd;
+        }
+
+        .status-table td:first-child {
+            font-weight: 600;
+            background: #f5f5f5;
+            width: 30%;
+        }
+
+        .status-ok {
+            color: #2e7d32;
+        }
+
+        .status-error {
+            color: #c62828;
+        }
+
+        .code-block {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1><i class="fas fa-flask"></i> Bhoomi Authentication Testing Suite</h1>
+
+        <div class="card">
+            <h2><i class="fas fa-info-circle"></i> System Status</h2>
+            <table class="status-table">
+                <tr>
+                    <td>API Server</td>
+                    <td><div id="serverStatus" class="status-error">Checking...</div></td>
+                </tr>
+                <tr>
+                    <td>localStorage Available</td>
+                    <td><div id="storageStatus" class="status-ok">✓ Available</div></td>
+                </tr>
+                <tr>
+                    <td>Current User Token</td>
+                    <td><div id="tokenStatus" class="status-error">Not found</div></td>
+                </tr>
+                <tr>
+                    <td>Current User Data</td>
+                    <td><div id="userStatus" class="status-error">Not found</div></td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="card">
+            <h2><i class="fas fa-vial"></i> Test Cases</h2>
+
+            <div class="test">
+                <div class="test-title">1. Check API Server Health</div>
+                <button onclick="testHealth()">Run Test</button>
+                <div id="testHealth" class="test-result" style="display:none;"></div>
+            </div>
+
+            <div class="test">
+                <div class="test-title">2. Test User Registration</div>
+                <button onclick="testRegistration()">Run Test</button>
+                <div id="testRegistration" class="test-result" style="display:none;"></div>
+            </div>
+
+            <div class="test">
+                <div class="test-title">3. Check localStorage After Login Simulation</div>
+                <button onclick="testLocalStorage()">Run Test</button>
+                <div id="testLocalStorage" class="test-result" style="display:none;"></div>
+            </div>
+
+            <div class="test">
+                <div class="test-title">4. Test Login Flow</div>
+                <button onclick="testLogin()">Run Test</button>
+                <div id="testLogin" class="test-result" style="display:none;"></div>
+            </div>
+
+            <div class="test">
+                <div class="test-title">5. Clear All Data</div>
+                <button onclick="clearAllData()">Clear localStorage</button>
+                <div id="testClear" class="test-result" style="display:none;"></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2><i class="fas fa-clipboard-list"></i> Troubleshooting Guide</h2>
+            <div class="code-block">
+<strong>Issue:</strong> "Registration works but login fails"
+<strong>Solution:</strong> 
+1. Check email for verification link
+2. Click the verification link
+3. Try login again
+
+---
+
+<strong>Issue:</strong> "Page doesn't load after login"
+<strong>Solution:</strong>
+1. Check browser console for errors (F12)
+2. Check that localStorage has 'user_token' and 'user_data'
+3. Verify token is not empty
+
+---
+
+<strong>Issue:</strong> "Token not being saved"
+<strong>Solution:</strong>
+1. Check that auth.html saves to 'user_token' (not 'token')
+2. Check browser localStorage is enabled
+3. Clear browser cache and try again
+            </div>
+        </div>
+
+        <div class="card">
+            <h2><i class="fas fa-link"></i> Quick Links</h2>
+            <p>
+                <a href="/" style="color: #667eea; text-decoration: none; margin-right: 20px;">
+                    <i class="fas fa-home"></i> Landing Page
+                </a>
+                <a href="/static/auth.html" style="color: #667eea; text-decoration: none; margin-right: 20px;">
+                    <i class="fas fa-sign-in-alt"></i> Login/Register
+                </a>
+                <a href="/static/dashboard.html" style="color: #667eea; text-decoration: none;">
+                    <i class="fas fa-th-large"></i> Dashboard
+                </a>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Check initial status
+        async function checkStatus() {
+            // Check server
+            try {
+                const resp = await fetch('/health', {timeout: 5000});
+                if (resp.ok) {
+                    document.getElementById('serverStatus').textContent = '✓ Online';
+                    document.getElementById('serverStatus').className = 'status-ok';
+                } else {
+                    document.getElementById('serverStatus').textContent = '✗ Offline';
+                }
+            } catch (e) {
+                document.getElementById('serverStatus').textContent = '✗ Not reachable';
+            }
+
+            // Check localStorage
+            try {
+                localStorage.setItem('test', 'test');
+                localStorage.removeItem('test');
+            } catch (e) {
+                document.getElementById('storageStatus').textContent = '✗ Disabled or full';
+                document.getElementById('storageStatus').className = 'status-error';
+            }
+
+            // Check for token
+            const token = localStorage.getItem('user_token');
+            if (token) {
+                document.getElementById('tokenStatus').textContent = `✓ Found (${token.substring(0, 20)}...)`;
+                document.getElementById('tokenStatus').className = 'status-ok';
+            }
+
+            // Check for user data
+            const user = localStorage.getItem('user_data');
+            if (user) {
+                const userData = JSON.parse(user);
+                document.getElementById('userStatus').textContent = `✓ ${userData.username} (${userData.user_type})`;
+                document.getElementById('userStatus').className = 'status-ok';
+            }
+        }
+
+        async function testHealth() {
+            const div = document.getElementById('testHealth');
+            div.style.display = 'block';
+            div.className = 'test-result result-error';
+            div.textContent = 'Testing...';
+
+            try {
+                const resp = await fetch('/health');
+                const data = await resp.json();
+                div.className = 'test-result result-success';
+                div.textContent = `✓ Server healthy\nStatus: ${resp.status}\nResponse: ${JSON.stringify(data, null, 2)}`;
+            } catch (e) {
+                div.className = 'test-result result-error';
+                div.textContent = `✗ Server unreachable\nError: ${e.message}`;
+            }
+        }
+
+        async function testRegistration() {
+            const div = document.getElementById('testRegistration');
+            div.style.display = 'block';
+            div.className = 'test-result result-error';
+            div.textContent = 'Registering test user...';
+
+            const testUser = {
+                username: 'test_' + Date.now(),
+                email: 'test_' + Date.now() + '@example.com',
+                password: 'TestPass123',
+                first_name: 'Test',
+                last_name: 'User'
+            };
+
+            try {
+                const resp = await fetch('/api/v1/auth/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(testUser)
+                });
+                const data = await resp.json();
+
+                if (resp.status === 201) {
+                    div.className = 'test-result result-success';
+                    div.textContent = `✓ Registration successful!\nUsername: ${testUser.username}\nEmail: ${testUser.email}\nNext: Check email for verification link`;
+                } else {
+                    div.className = 'test-result result-error';
+                    div.textContent = `✗ Registration failed\nStatus: ${resp.status}\nError: ${data.detail}`;
+                }
+            } catch (e) {
+                div.className = 'test-result result-error';
+                div.textContent = `✗ Error: ${e.message}`;
+            }
+        }
+
+        async function testLocalStorage() {
+            const div = document.getElementById('testLocalStorage');
+            div.style.display = 'block';
+
+            const testData = {
+                token: 'test_token_12345',
+                user: { username: 'testuser', email: 'test@example.com' }
+            };
+
+            // Simulate login saving
+            localStorage.setItem('user_token', testData.token);
+            localStorage.setItem('user_data', JSON.stringify(testData.user));
+
+            // Check if saved
+            const savedToken = localStorage.getItem('user_token');
+            const savedUser = localStorage.getItem('user_data');
+
+            if (savedToken && savedUser) {
+                div.className = 'test-result result-success';
+                div.textContent = `✓ localStorage working correctly\n\nToken saved: ${savedToken}\nUser data: ${savedUser}`;
+            } else {
+                div.className = 'test-result result-error';
+                div.textContent = '✗ localStorage not working\nToken: ' + (savedToken || 'NOT FOUND') + '\nUser: ' + (savedUser || 'NOT FOUND');
+            }
+        }
+
+        async function testLogin() {
+            const div = document.getElementById('testLogin');
+            div.style.display = 'block';
+            div.className = 'test-result result-error';
+            div.textContent = 'Testing login (demo user)...';
+
+            try {
+                const resp = await fetch('/api/v1/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        username: 'demo',
+                        password: 'demo123'
+                    })
+                });
+                const data = await resp.json();
+
+                if (resp.status === 200 && data.token) {
+                    div.className = 'test-result result-success';
+                    div.textContent = `✓ Login successful!\nToken: ${data.token.substring(0, 30)}...\nUser: ${data.user.username}`;
+                } else {
+                    div.className = 'test-result result-warning';
+                    div.textContent = `⚠ Login response: ${resp.status}\nMessage: ${data.detail || 'See response details'}\n\nNote: This is expected if email is not verified`;
+                }
+            } catch (e) {
+                div.className = 'test-result result-error';
+                div.textContent = `✗ Error: ${e.message}`;
+            }
+        }
+
+        function clearAllData() {
+            const div = document.getElementById('testClear');
+            div.style.display = 'block';
+            localStorage.clear();
+            sessionStorage.clear();
+            div.className = 'test-result result-success';
+            div.textContent = '✓ All data cleared\nlocalStorage and sessionStorage are now empty';
+            checkStatus();
+        }
+
+        // Run initial checks
+        window.addEventListener('load', checkStatus);
+    </script>
+</body>
+</html>

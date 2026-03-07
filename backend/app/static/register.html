@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Bhoomi Land Cases</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 450px;
+            width: 100%;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 0.95rem;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        input[type="password"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .password-requirements {
+            background: #f0f4ff;
+            border-left: 4px solid #667eea;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 0.85rem;
+            color: #555;
+        }
+
+        .password-requirements ul {
+            margin-left: 20px;
+            line-height: 1.6;
+        }
+
+        .btn-register {
+            width: 100%;
+            padding: 13px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #667eea;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .btn-register:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-register:active {
+            transform: translateY(0);
+        }
+
+        .btn-register:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .login-link {
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .login-link p {
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+        .login-link a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .login-link a:hover {
+            color: #764ba2;
+        }
+
+        .status {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 600;
+            display: none;
+        }
+
+        .status.show {
+            display: block;
+        }
+
+        .status.loading {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .status.success {
+            background: #e8f5e9;
+            color: #388e3c;
+        }
+
+        .status.error {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .user-type-info {
+            background: #e8eaf6;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+            color: #555;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .form-row .form-group {
+            margin-bottom: 15px;
+        }
+
+        @media (max-width: 600px) {
+            .card {
+                padding: 30px 20px;
+            }
+
+            .header h1 {
+                font-size: 1.5rem;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .privacy-notice {
+            font-size: 0.8rem;
+            color: #999;
+            text-align: center;
+            margin-top: 15px;
+            line-height: 1.4;
+        }
+
+        .privacy-notice a {
+            color: #667eea;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="header">
+                <div class="logo">
+                    <i class="fas fa-gavel"></i>
+                </div>
+                <h1>Create Account</h1>
+                <p>Join Bhoomi - Track Court Cases</p>
+            </div>
+
+            <form id="registerForm">
+                <div class="form-group">
+                    <label for="userType">
+                        <i class="fas fa-user-tag"></i> User Type
+                    </label>
+                    <select id="userType" required>
+                        <option value="">Select your role...</option>
+                        <option value="citizen">Citizen</option>
+                        <option value="lawyer">Lawyer / Advocate</option>
+                        <option value="court_staff">Court Staff</option>
+                    </select>
+                    <div id="userTypeInfo" class="user-type-info" style="display: none;">
+                        <strong id="typeTitle"></strong><br>
+                        <span id="typeDescription"></span>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="firstName">
+                            <i class="fas fa-user"></i> First Name
+                        </label>
+                        <input 
+                            type="text" 
+                            id="firstName" 
+                            placeholder="First name"
+                            required
+                            minlength="2"
+                        >
+                    </div>
+                    <div class="form-group">
+                        <label for="lastName">
+                            <i class="fas fa-user"></i> Last Name
+                        </label>
+                        <input 
+                            type="text" 
+                            id="lastName" 
+                            placeholder="Last name"
+                            minlength="2"
+                        >
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">
+                        <i class="fas fa-envelope"></i> Email Address
+                    </label>
+                    <input 
+                        type="email" 
+                        id="email" 
+                        placeholder="your@email.com"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="username">
+                        <i class="fas fa-user-circle"></i> Username
+                    </label>
+                    <input 
+                        type="text" 
+                        id="username" 
+                        placeholder="Choose username"
+                        required
+                        minlength="4"
+                        maxlength="20"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="password">
+                        <i class="fas fa-lock"></i> Password
+                    </label>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        placeholder="Create strong password"
+                        required
+                        minlength="6"
+                    >
+                    <div class="password-requirements">
+                        <strong>Password must have:</strong>
+                        <ul>
+                            <li>At least 6 characters</li>
+                            <li>Mix of letters and numbers</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmPassword">
+                        <i class="fas fa-lock"></i> Confirm Password
+                    </label>
+                    <input 
+                        type="password" 
+                        id="confirmPassword" 
+                        placeholder="Re-enter password"
+                        required
+                    >
+                </div>
+
+                <button type="submit" class="btn-register">
+                    <i class="fas fa-user-plus"></i> Create Account
+                </button>
+
+                <div id="status" class="status"></div>
+            </form>
+
+            <div class="login-link">
+                <p>Already have an account?
+                    <a href="/static/login.html">
+                        <i class="fas fa-sign-in-alt"></i> Login here
+                    </a>
+                </p>
+            </div>
+
+            <div class="privacy-notice">
+                <i class="fas fa-shield-alt"></i> Your data is secure and private
+                <br>
+                <a href="/">← Back to Search</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const registerForm = document.getElementById('registerForm');
+        const userTypeSelect = document.getElementById('userType');
+        const userTypeInfo = document.getElementById('userTypeInfo');
+        const statusDiv = document.getElementById('status');
+
+        const userTypeDescriptions = {
+            citizen: {
+                title: "Citizen",
+                description: "Access public case information and track land disputes"
+            },
+            lawyer: {
+                title: "Lawyer / Advocate",
+                description: "Professional account with advanced case tracking and documentation"
+            },
+            court_staff: {
+                title: "Court Staff",
+                description: "Official court representative with administrative access"
+            }
+        };
+
+        userTypeSelect.addEventListener('change', (e) => {
+            if (e.target.value && userTypeDescriptions[e.target.value]) {
+                const type = userTypeDescriptions[e.target.value];
+                document.getElementById('typeTitle').textContent = type.title;
+                document.getElementById('typeDescription').textContent = type.description;
+                userTypeInfo.style.display = 'block';
+            } else {
+                userTypeInfo.style.display = 'none';
+            }
+        });
+
+        function showStatus(msg, type) {
+            statusDiv.textContent = msg;
+            statusDiv.className = 'status show ' + type;
+            if (type === 'success') {
+                // Don't redirect, let user see verification message
+                registerForm.style.display = 'none';
+            }
+        }
+
+        registerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const firstName = document.getElementById('firstName').value.trim();
+            const lastName = document.getElementById('lastName').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const userType = document.getElementById('userType').value;
+
+            // Validations
+            if (!userType) {
+                showStatus('⚠️ Please select your user type', 'error');
+                return;
+            }
+
+            if (!firstName) {
+                showStatus('⚠️ Please enter first name', 'error');
+                return;
+            }
+
+            if (!/^[a-zA-Z\s-]{2,}$/.test(firstName)) {
+                showStatus('❌ First name must be 2+ letters', 'error');
+                return;
+            }
+
+            if (lastName && !/^[a-zA-Z\s-]{2,}$/.test(lastName)) {
+                showStatus('❌ Last name format invalid', 'error');
+                return;
+            }
+
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                showStatus('❌ Invalid email address', 'error');
+                return;
+            }
+
+            if (!/^[a-zA-Z0-9_]{4,20}$/.test(username)) {
+                showStatus('❌ Username: 4-20 chars, letters/numbers/underscore only', 'error');
+                return;
+            }
+
+            if (password.length < 6) {
+                showStatus('❌ Password must be 6+ characters', 'error');
+                return;
+            }
+
+            if (!/[a-zA-Z]/.test(password) || !/[0-9]/.test(password)) {
+                showStatus('❌ Password must have letters and numbers', 'error');
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                showStatus('❌ Passwords do not match', 'error');
+                return;
+            }
+
+            showStatus('⏳ Creating account...', 'loading');
+
+            try {
+                const response = await fetch('/api/v1/auth/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username,
+                        email,
+                        password,
+                        first_name: firstName,
+                        last_name: lastName,
+                        user_type: userType
+                    })
+                });
+
+                const result = await response.json();
+
+                if (response.status === 201 || response.status === 200) {
+                    showStatus('✅ Account created! Check your email to verify your account.', 'success');
+                    const infoDiv = document.createElement('div');
+                    infoDiv.innerHTML = `
+                        <div style="background: #e8f5e9; border: 1px solid #c8e6c9; border-radius: 8px; padding: 15px; margin-top: 15px; color: #2e7d32;">
+                            <strong>📧 Email Verification Required</strong>
+                            <p style="margin-top: 10px; font-size: 0.9rem;">We've sent a verification email to <strong>${email}</strong>.</p>
+                            <p style="margin-top: 8px; font-size: 0.9rem;">Click the link in the email to verify your account within 24 hours.</p>
+                            <p style="margin-top: 8px; font-size: 0.9rem;">💡 Check your spam/junk folder if you don't see it.</p>
+                            <a href="/static/login.html" style="display: inline-block; margin-top: 10px; padding: 8px 16px; background: #667eea; color: white; text-decoration: none; border-radius: 4px;">Go to Login</a>
+                        </div>
+                    `;
+                    statusDiv.after(infoDiv);
+                } else if (response.status === 409) {
+                    showStatus('❌ ' + (result.detail || 'Username or email already exists'), 'error');
+                } else if (response.status === 400) {
+                    showStatus('❌ ' + (result.detail || 'Invalid data provided'), 'error');
+                } else {
+                    showStatus('❌ Registration failed: ' + (result.detail || 'Unknown error'), 'error');
+                }
+            } catch (error) {
+                showStatus('❌ Error: ' + error.message, 'error');
+                console.error('Registration error:', error);
+            }
+        });
+    </script>
+</body>
+</html>
