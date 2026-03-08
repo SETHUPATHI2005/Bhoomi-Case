@@ -6,7 +6,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Land Cases Search - Bhoomi</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <style>
+        :root {
+            --primary: #4F46E5;
+            --primary-hover: #4338CA;
+            --secondary: #ec4899;
+            --background: #f8fafc;
+            --surface: rgba(255, 255, 255, 0.85);
+            --surface-border: rgba(255, 255, 255, 0.4);
+            --text: #0f172a;
+            --text-light: #64748b;
+            --success: #10b981;
+            --error: #ef4444;
+            --warning: #f59e0b;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -14,91 +30,122 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--background);
+            background-image:
+                radial-gradient(at 0% 0%, hsla(253, 16%, 7%, 0) 0, transparent 50%),
+                radial-gradient(at 50% 0%, hsla(225, 39%, 30%, 0) 0, transparent 50%),
+                radial-gradient(at 100% 0%, hsla(339, 49%, 30%, 0) 0, transparent 50%);
+            /* Elegant mesh gradient */
+            background:
+                radial-gradient(circle at 15% 50%, rgba(79, 70, 229, 0.15), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(236, 72, 153, 0.15), transparent 25%);
+            background-attachment: fixed;
+            color: var(--text);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            padding: 0;
+            overflow-x: hidden;
         }
 
         header {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 15px 30px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 15px 40px;
+            border-bottom: 1px solid var(--surface-border);
             display: flex;
             justify-content: space-between;
             align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
 
         .logo-text {
             font-size: 1.5rem;
-            font-weight: 600;
-            color: #667eea;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
             text-decoration: none;
+            letter-spacing: -0.5px;
+        }
+
+        .logo-text i {
+            -webkit-text-fill-color: var(--primary);
         }
 
         .auth-buttons {
             display: flex;
-            gap: 10px;
+            gap: 15px;
+            align-items: center;
         }
 
         .btn-auth {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
+            padding: 10px 20px;
+            border-radius: 12px;
             font-weight: 600;
-            font-size: 0.9rem;
-            transition: all 0.3s ease;
+            font-size: 0.95rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             text-decoration: none;
             display: inline-flex;
             align-items: center;
-            gap: 5px;
+            gap: 8px;
+            cursor: pointer;
+            border: none;
         }
 
         .btn-login {
-            background: #667eea;
+            background: var(--text);
             color: white;
+            box-shadow: 0 4px 14px rgba(15, 23, 42, 0.2);
         }
 
         .btn-login:hover {
-            background: #764ba2;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(15, 23, 42, 0.3);
+            background: #1e293b;
         }
 
         .btn-register {
             background: white;
-            color: #667eea;
-            border: 2px solid #667eea;
+            color: var(--text);
+            border: 1px solid #e2e8f0;
         }
 
         .btn-register:hover {
-            background: #f5f7fa;
+            background: #f8fafc;
+            border-color: #cbd5e1;
         }
 
         .btn-logout {
-            background: #f44336;
-            color: white;
+            background: #fee2e2;
+            color: var(--error);
         }
 
         .btn-logout:hover {
-            background: #d32f2f;
+            background: #fecaca;
+            transform: translateY(-2px);
         }
 
         .user-profile {
             display: flex;
             align-items: center;
             gap: 15px;
-            padding: 0 15px;
-            border-right: 1px solid #e0e0e0;
+            padding: 0 20px;
+            border-right: 1px solid #e2e8f0;
         }
 
         .user-name {
             font-weight: 600;
-            color: #333;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .main-content {
@@ -106,50 +153,49 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 20px;
+            padding: 40px 20px;
         }
 
         .container {
             width: 100%;
-            max-width: 600px;
+            max-width: 700px;
+            position: relative;
         }
 
         .header {
             text-align: center;
-            color: white;
             margin-bottom: 40px;
+            animation: fadeInDown 0.8s ease-out;
         }
 
         .header h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 15px;
+            letter-spacing: -1px;
+            background: linear-gradient(135deg, var(--text), #334155);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         .header p {
-            font-size: 1rem;
-            opacity: 0.95;
-        }
-
-        .logo {
-            width: 80px;
-            height: 80px;
-            margin: 0 auto 20px;
-            background: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 3rem;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            font-size: 1.1rem;
+            color: var(--text-light);
+            max-width: 500px;
+            margin: 0 auto;
+            line-height: 1.6;
         }
 
         .card {
-            background: white;
-            border-radius: 15px;
+            background: var(--surface);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--surface-border);
+            border-radius: 24px;
             padding: 40px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(0, 0, 0, 0.02);
             margin-bottom: 20px;
+            animation: fadeInUp 0.8s ease-out 0.2s both;
         }
 
         .search-section {
@@ -157,218 +203,506 @@
         }
 
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
 
         label {
             display: block;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
             font-weight: 600;
-            color: #333;
+            color: var(--text);
             font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        label i {
+            color: var(--primary);
+        }
+
+        .input-wrapper {
+            position: relative;
         }
 
         input[type="text"],
         input[type="number"] {
             width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 1rem;
-            transition: all 0.3s ease;
+            padding: 16px 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            font-size: 1.05rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             font-family: inherit;
+            color: var(--text);
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
         }
 
         input[type="text"]:focus,
         input[type="number"]:focus {
             outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            border-color: var(--primary);
+            background: #ffffff;
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+        }
+
+        input::placeholder {
+            color: #94a3b8;
         }
 
         .button-group {
             display: flex;
-            gap: 10px;
-            margin-top: 30px;
+            gap: 15px;
+            margin-top: 35px;
         }
 
-        button {
-            flex: 1;
-            padding: 12px 20px;
+        button.action-btn {
+            padding: 16px 24px;
             border: none;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 600;
+            border-radius: 14px;
+            font-size: 1.05rem;
+            font-weight: 700;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             font-family: inherit;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
         }
 
         .btn-search {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            flex: 2;
+            background: linear-gradient(135deg, var(--primary), var(--primary-hover));
             color: white;
+            box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.4);
         }
 
         .btn-search:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+            transform: translateY(-3px);
+            box-shadow: 0 20px 25px -5px rgba(79, 70, 229, 0.4), 0 8px 10px -6px rgba(79, 70, 229, 0.1);
         }
 
         .btn-search:active {
-            transform: translateY(0);
+            transform: translateY(-1px);
         }
 
         .btn-clear {
-            background: #f0f0f0;
-            color: #666;
+            flex: 1;
+            background: #f1f5f9;
+            color: var(--text-light);
+            border: 1px solid #e2e8f0;
         }
 
         .btn-clear:hover {
-            background: #e0e0e0;
+            background: #e2e8f0;
+            color: var(--text);
         }
 
         .results {
             margin-top: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
         }
 
         .result-item {
-            background: #f8f9fa;
-            border-left: 4px solid #667eea;
-            padding: 20px;
-            margin-bottom: 15px;
-            border-radius: 8px;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            padding: 24px;
+            border-radius: 16px;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            animation: slideUp 0.5s ease-out forwards;
+        }
+
+        .result-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--primary), var(--secondary));
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
 
         .result-item:hover {
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
-            transform: translateX(5px);
+            transform: translateY(-5px) scale(1.01);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            border-color: #cbd5e1;
+        }
+
+        .result-item:hover::before {
+            opacity: 1;
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
         }
 
         .result-item h3 {
-            color: #667eea;
-            margin-bottom: 8px;
-            font-size: 1.1rem;
+            color: var(--text);
+            font-size: 1.25rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
         }
 
-        .result-item p {
-            color: #666;
-            font-size: 0.95rem;
-            margin: 5px 0;
+        .result-badge {
+            background: #f1f5f9;
+            color: var(--text-light);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .result-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
         }
 
         .result-label {
+            font-size: 0.8rem;
+            color: var(--text-light);
             font-weight: 600;
-            color: #333;
+            text-transform: uppercase;
         }
 
-        .status {
+        .result-value {
+            font-size: 0.95rem;
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        .linked-cases-banner {
+            background: #f8fafc;
+            border-top: 1px solid #e2e8f0;
+            margin: 20px -24px -24px -24px;
+            padding: 15px 24px;
+            font-size: 0.9rem;
+            color: var(--primary);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .linked-cases-container {
             margin-top: 20px;
-            padding: 15px;
-            border-radius: 8px;
+            margin-left: 20px;
+            border-left: 2px solid #e2e8f0;
+            padding-left: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .linked-case-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 15px 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .linked-case-card:hover {
+            border-color: var(--primary);
+            background: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .case-status {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: capitalize;
+        }
+
+        .status-ongoing {
+            background: #fef3c7;
+            color: #b45309;
+        }
+
+        .status-resolved {
+            background: #d1fae5;
+            color: #047857;
+        }
+
+        .status-message {
+            margin-top: 25px;
+            padding: 16px;
+            border-radius: 12px;
             text-align: center;
             font-weight: 600;
             display: none;
+            animation: fadeIn 0.3s ease;
         }
 
-        .status.show {
+        .status-message.show {
             display: block;
         }
 
-        .status.loading {
-            background: #e3f2fd;
-            color: #1976d2;
+        .status-message.loading {
+            background: #eff6ff;
+            color: #1d4ed8;
+            border: 1px solid #bfdbfe;
         }
 
-        .status.success {
-            background: #e8f5e9;
-            color: #388e3c;
+        .status-message.success {
+            background: #f0fdf4;
+            color: #15803d;
+            border: 1px solid #bbf7d0;
         }
 
-        .status.error {
-            background: #ffebee;
-            color: #c62828;
+        .status-message.error {
+            background: #fef2f2;
+            color: #b91c1c;
+            border: 1px solid #fecaca;
         }
 
         .admin-link {
             text-align: center;
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid #e0e0e0;
+            margin-top: 40px;
+            animation: fadeIn 1s ease 0.5s both;
         }
 
         .admin-link a {
-            color: #667eea;
+            color: var(--text-light);
             text-decoration: none;
             font-weight: 600;
+            font-size: 0.95rem;
             transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 20px;
         }
 
         .admin-link a:hover {
-            color: #764ba2;
+            color: var(--primary);
+            background: rgba(79, 70, 229, 0.1);
         }
 
         .info-box {
-            background: #f0f4ff;
-            border-left: 4px solid #667eea;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            color: #333;
+            background: rgba(79, 70, 229, 0.05);
+            border: 1px solid rgba(79, 70, 229, 0.1);
+            padding: 16px 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            color: #334155;
             font-size: 0.95rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            line-height: 1.5;
         }
 
         .info-box i {
-            color: #667eea;
-            margin-right: 10px;
+            color: var(--primary);
+            font-size: 1.2rem;
+            margin-top: 2px;
         }
 
         .empty-state {
             text-align: center;
-            padding: 40px 20px;
-            color: #999;
+            padding: 60px 20px;
+            background: white;
+            border-radius: 16px;
+            border: 1px dashed #cbd5e1;
+            color: var(--text-light);
         }
 
         .empty-state i {
-            font-size: 3rem;
-            color: #ddd;
-            margin-bottom: 15px;
+            font-size: 3.5rem;
+            color: #e2e8f0;
+            margin-bottom: 20px;
         }
 
-        @media (max-width: 600px) {
+        .empty-state h3 {
+            color: var(--text);
+            margin-bottom: 8px;
+        }
+
+        /* Sidebar Styles */
+        #sidebar {
+            position: fixed;
+            top: 0;
+            left: -320px;
+            width: 320px;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: 10px 0 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 2000;
+            padding: 40px 30px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .sidebar-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .sidebar-nav a {
+            text-decoration: none;
+            color: var(--text);
+            font-weight: 600;
+            font-size: 1.05rem;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 14px 20px;
+            border-radius: 12px;
+            transition: all 0.2s ease;
+        }
+
+        .sidebar-nav a:hover {
+            background: #f1f5f9;
+        }
+
+        .sidebar-nav a.active {
+            background: rgba(79, 70, 229, 0.1);
+            color: var(--primary);
+        }
+
+        .sidebar-nav a.active i {
+            color: var(--primary);
+        }
+
+        .sidebar-nav a i {
+            width: 24px;
+            color: var(--text-light);
+            font-size: 1.2rem;
+            text-align: center;
+        }
+
+        #sidebarOverlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.4);
+            backdrop-filter: blur(4px);
+            z-index: 1999;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 768px) {
             header {
-                flex-direction: column;
-                gap: 15px;
-                text-align: center;
-            }
-
-            .user-profile {
-                border-right: none;
-                border-bottom: 1px solid #e0e0e0;
-                padding-bottom: 15px;
-                width: 100%;
-                justify-content: center;
-            }
-
-            .auth-buttons {
-                justify-content: center;
+                padding: 15px 20px;
             }
 
             .header h1 {
-                font-size: 2rem;
+                font-size: 2.2rem;
             }
 
             .card {
-                padding: 25px;
+                padding: 25px 20px;
+                border-radius: 20px;
             }
 
             .button-group {
                 flex-direction: column;
             }
 
-            .main-content {
-                padding: 15px;
+            .result-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .user-name {
+                display: none;
+            }
+
+            .user-profile {
+                border-right: none;
+                padding-right: 0;
+                gap: 10px;
             }
         }
     </style>
@@ -378,7 +712,7 @@
     <header id="navHeader">
         <div style="display: flex; align-items: center; gap: 20px;">
             <button id="menuBtn"
-                style="background: none; border: none; color: #667eea; font-size: 1.5rem; cursor: pointer; padding: 5px;">
+                style="background: none; border: none; color: var(--text); font-size: 1.5rem; cursor: pointer; padding: 5px; transition: color 0.2s;">
                 <i class="fas fa-bars"></i>
             </button>
             <a href="/" class="logo-text">
@@ -386,28 +720,25 @@
             </a>
         </div>
         <div id="userSection" class="auth-buttons">
-            <a href="/static/auth.html" class="btn-auth btn-login">
-                <i class="fas fa-sign-in-alt"></i> Login
-            </a>
-            <a href="/static/auth.html" class="btn-auth btn-register">
-                <i class="fas fa-user-plus"></i> Register
-            </a>
+            <a href="/static/auth.html" class="btn-auth btn-register">Login</a>
+            <a href="/static/auth.html" class="btn-auth btn-login">Get Started</a>
         </div>
     </header>
 
     <div class="main-content">
         <div class="container">
             <div class="header">
-                <div class="logo">
-                    <i class="fas fa-gavel"></i>
-                </div>
-                <h1>🏛️ Bhoomi</h1>
+                <h1>Search Land Records</h1>
+                <p>Instantly access transparent, verified court cases and property litigation histories.</p>
             </div>
 
             <div class="card">
                 <div class="info-box">
-                    <i class="fas fa-info-circle"></i>
-                    Search for ongoing court cases by entering village name and survey number.
+                    <i class="fas fa-shield-alt"></i>
+                    <div>
+                        <strong>Verified Data Access</strong><br>
+                        Enter the village name and exact survey number to query our immutable record database.
+                    </div>
                 </div>
 
                 <div class="search-section">
@@ -416,239 +747,256 @@
                             <label for="village">
                                 <i class="fas fa-map-marker-alt"></i> Village Name
                             </label>
-                            <input type="text" id="village" placeholder="e.g., Kisanpur" required>
+                            <div class="input-wrapper">
+                                <input type="text" id="village" placeholder="e.g., Kisanpur" required
+                                    autocomplete="off">
+                            </div>
                         </div>
 
                         <div class="form-group">
                             <label for="survey">
                                 <i class="fas fa-hashtag"></i> Survey Number
                             </label>
-                            <input type="text" id="survey" placeholder="e.g., 123" required>
+                            <div class="input-wrapper">
+                                <input type="text" id="survey" placeholder="e.g., V-123" required autocomplete="off">
+                            </div>
                         </div>
 
                         <div class="button-group">
-                            <button type="submit" class="btn-search">
-                                <i class="fas fa-search"></i> Search
+                            <button type="submit" class="action-btn btn-search">
+                                <i class="fas fa-search"></i> Search Records
                             </button>
-                            <button type="reset" class="btn-clear">
-                                <i class="fas fa-times"></i> Clear
+                            <button type="reset" class="action-btn btn-clear">
+                                <i class="fas fa-eraser"></i> Clear
                             </button>
                         </div>
                     </form>
 
-                    <div id="status" class="status"></div>
+                    <div id="status" class="status-message"></div>
                 </div>
 
                 <div id="results" class="results"></div>
+            </div>
 
-                <div class="admin-link">
-                    <a href="/static/admin.html">
-                        <i class="fas fa-lock"></i> Admin Upload
-                    </a>
-                </div>
+            <div class="admin-link">
+                <a href="/static/admin.html">
+                    <i class="fas fa-shield-halved"></i> Authorized Personnel Access
+                </a>
             </div>
         </div>
+    </div>
 
-        <script>
-            const searchForm = document.getElementById('searchForm');
-            const villageInput = document.getElementById('village');
-            const surveyInput = document.getElementById('survey');
-            const statusDiv = document.getElementById('status');
-            const resultsDiv = document.getElementById('results');
+    <!-- Sidebar Menu -->
+    <div id="sidebar">
+        <div class="sidebar-header">
+            <h2 class="logo-text" style="font-size: 1.5rem;"><i class="fas fa-gavel"></i> Bhoomi</h2>
+            <button id="closeMenuBtn"
+                style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-light); transition: color 0.2s;">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="/static/index.html" class="active">
+                <i class="fas fa-search"></i> Search Case
+            </a>
+            <a href="/static/dashboard.html">
+                <i class="fas fa-home"></i> Dashboard
+            </a>
+            <a href="/static/admin.html">
+                <i class="fas fa-lock"></i> Admin Panel
+            </a>
+        </nav>
+    </div>
+    <div id="sidebarOverlay"></div>
 
-            function showStatus(message, type) {
-                statusDiv.textContent = message;
-                statusDiv.className = `status show ${type}`;
+    <script>
+        const searchForm = document.getElementById('searchForm');
+        const villageInput = document.getElementById('village');
+        const surveyInput = document.getElementById('survey');
+        const statusDiv = document.getElementById('status');
+        const resultsDiv = document.getElementById('results');
+
+        function showStatus(message, type) {
+            statusDiv.innerHTML = `<i class="fas fa-${type === 'loading' ? 'spinner fa-spin' : type === 'error' ? 'exclamation-circle' : 'check-circle'}"></i> ${message}`;
+            statusDiv.className = `status-message show ${type}`;
+        }
+
+        function clearStatus() {
+            statusDiv.className = 'status-message';
+        }
+
+        searchForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const village = villageInput.value.trim();
+            const survey = surveyInput.value.trim();
+
+            if (!village || !survey) {
+                showStatus('Please enter both village and survey number', 'error');
+                return;
             }
 
-            function clearStatus() {
-                statusDiv.className = 'status';
-            }
+            showStatus('Querying secure records...', 'loading');
+            resultsDiv.innerHTML = '';
 
-            searchForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
+            try {
+                const response = await fetch(
+                    `/api/v1/search?village=${encodeURIComponent(village)}&survey=${encodeURIComponent(survey)}`
+                );
+                const data = await response.json();
 
-                const village = villageInput.value.trim();
-                const survey = surveyInput.value.trim();
-
-                if (!village || !survey) {
-                    showStatus('Please enter both village and survey number', 'error');
+                if (data.count === 0) {
+                    resultsDiv.innerHTML = `
+                    <div class="empty-state">
+                        <i class="far fa-folder-open"></i>
+                        <h3>No Records Found</h3>
+                        <p>No active litigation found for this specific parcel.</p>
+                    </div>`;
+                    clearStatus();
                     return;
                 }
 
-                showStatus('Searching...', 'loading');
-                resultsDiv.innerHTML = '';
+                showStatus(`Successfully retrieved ${data.count} confirmed record(s)`, 'success');
+                setTimeout(clearStatus, 3000);
 
-                try {
-                    const response = await fetch(
-                        `/api/v1/search?village=${encodeURIComponent(village)}&survey=${encodeURIComponent(survey)}`
-                    );
-                    const data = await response.json();
-
-                    if (data.count === 0) {
-                        resultsDiv.innerHTML = `
-                        <div class="empty-state">
-                            <i class="fas fa-search"></i>
-                            <p>No cases found for this location.</p>
+                resultsDiv.innerHTML = data.results.map((result, index) => {
+                    let html = `
+                    <div class="result-item" style="animation-delay: ${index * 0.1}s">
+                        <div class="result-header">
+                            <h3><i class="fas fa-map-marker-alt" style="color: var(--primary); margin-right: 8px;"></i>${result.village}</h3>
+                            <span class="result-badge">Survey #${result.survey_number}</span>
                         </div>
-                    `;
-                        clearStatus();
-                        return;
+                        
+                        <div class="result-grid">
+                            <div class="result-info">
+                                <span class="result-label">Property Type</span>
+                                <span class="result-value">${result.property_type || 'Unclassified'}</span>
+                            </div>
+                            <div class="result-info">
+                                <span class="result-label">Total Area</span>
+                                <span class="result-value">${result.area_sqft ? result.area_sqft + ' sqft' : 'N/A'}</span>
+                            </div>
+                        `;
+
+                    if (result.location) {
+                        html += `
+                            <div class="result-info" style="grid-column: 1 / -1;">
+                                <span class="result-label">Coordinates</span>
+                                <span class="result-value" style="font-family: monospace; background: #f1f5f9; padding: 4px 8px; border-radius: 6px; display: inline-block; width: fit-content; margin-top: 4px;">
+                                    ${result.location.latitude}, ${result.location.longitude}
+                                </span>
+                            </div>
+                        `;
                     }
 
-                    showStatus(`Found ${data.count} result(s)`, 'success');
+                    html += `</div>`;
 
-                    resultsDiv.innerHTML = data.results.map(result => {
-                        let html = `
-                        <div style="margin-bottom: 20px;">
-                            <div class="result-item" onclick="event.stopPropagation()">
-                                <h3>📍 ${result.village} - Survey #${result.survey_number}</h3>
-                                <p><span class="result-label">Property Type:</span> ${result.property_type || 'N/A'}</p>
-                                <p><span class="result-label">Area:</span> ${result.area_sqft || 'N/A'} sqft | ${result.area_acres || 'N/A'} acres</p>
-                                ${result.location ? `
-                                    <p><span class="result-label">Location:</span> ${result.location.exact_location || 'N/A'}</p>
-                                    <p><span class="result-label">Coordinates:</span> ${result.location.latitude}, ${result.location.longitude}</p>
-                                ` : ''}
-                                <p style="font-size: 0.85rem; color: #999; margin-top: 10px;">
-                                    <i class="fas fa-info-circle"></i> ${Array.isArray(result.linked_cases)
-                                ? result.linked_cases.length
-                                : 0
-                            } linked case(s)
-                                </p>
-                            </div>`;
+                    // Show linked cases if any
+                    if (result.linked_cases && Array.isArray(result.linked_cases) && result.linked_cases.length > 0) {
+                        html += `
+                        <div class="linked-cases-banner">
+                            <i class="fas fa-link"></i> ${result.linked_cases.length} Linked Court Case(s)
+                        </div>
+                        <div class="linked-cases-container">`;
 
-                        // Show linked cases if any
-                        if (result.linked_cases && Array.isArray(result.linked_cases) && result.linked_cases.length > 0) {
-                            html += `<div style="margin-left: 20px; border-left: 3px solid #ddd; padding-left: 15px; margin-top: 10px;">`;
-                            result.linked_cases.forEach(caseItem => {
-                                html += `
-                                <div class="result-item" onclick="viewCase('${caseItem.case_id}')" style="margin-bottom: 10px; cursor: pointer;">
-                                    <p><strong><i class="fas fa-gavel"></i> ${caseItem.case_id}</strong></p>
-                                    <p><span class="result-label">Court:</span> ${caseItem.court || 'N/A'}</p>
-                                    <p><span class="result-label">Case Type:</span> ${caseItem.case_type || 'N/A'}</p>
-                                    <p><span class="result-label">Status:</span> <span style="background: ${caseItem.status === 'ongoing' ? '#fff3cd' : '#d4edda'}; padding: 2px 8px; border-radius: 4px;">${caseItem.status || 'N/A'}</span></p>
-                                    <p style="font-size: 0.85rem; color: #999; margin-top: 8px;">
-                                        <i class="fas fa-arrow-right"></i> Click to view case details
-                                    </p>
+                        result.linked_cases.forEach(caseItem => {
+                            const statusClass = caseItem.status === 'ongoing' ? 'status-ongoing' : 'status-resolved';
+                            html += `
+                            <div class="linked-case-card" onclick="viewCase('${caseItem.case_id}')">
+                                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
+                                    <h4 style="color: var(--text); font-size: 1.1rem; display: flex; align-items: center; gap: 8px;">
+                                        <i class="fas fa-gavel" style="color: var(--text-light)"></i> ${caseItem.case_id}
+                                    </h4>
+                                    <span class="case-status ${statusClass}">${caseItem.status || 'Unknown'}</span>
                                 </div>
-                            `;
-                            });
-                            html += `</div>`;
-                        } else {
-                            html += `<div style="margin-left: 20px; padding: 10px; color: #999; font-size: 0.9rem;">No linked cases</div>`;
-                        }
-
+                                <div style="display: flex; flex-direction: column; gap: 4px; color: var(--text-light); font-size: 0.9rem;">
+                                    <span><strong>Court:</strong> ${caseItem.court || 'N/A'}</span>
+                                    <span><strong>Type:</strong> ${caseItem.case_type || 'N/A'}</span>
+                                </div>
+                            </div>`;
+                        });
                         html += `</div>`;
-                        return html;
-                    }).join('');
+                    }
 
-                } catch (error) {
-                    showStatus('Error searching. Please try again.', 'error');
-                    console.error('Search error:', error);
-                }
-            });
+                    html += `</div>`;
+                    return html;
+                }).join('');
 
-            function viewCase(caseId) {
-                window.location.href = `/static/case.html?id=${encodeURIComponent(caseId)}`;
+            } catch (error) {
+                showStatus('Connection fault. Please try again later.', 'error');
+                console.error('Search error:', error);
             }
+        });
 
-            villageInput.focus();
+        function viewCase(caseId) {
+            window.location.href = `/static/case.html?id=${encodeURIComponent(caseId)}`;
+        }
 
-            // Auto-populate search from URL parameters (used by dashboard saved searches).
-            const params = new URLSearchParams(window.location.search);
-            const villageParam = params.get('village');
-            const surveyParam = params.get('survey');
-            if (villageParam && surveyParam) {
-                villageInput.value = villageParam;
-                surveyInput.value = surveyParam;
-                searchForm.dispatchEvent(new Event('submit', { cancelable: true }));
-            }
+        // Auto-populate search from URL parameters
+        const params = new URLSearchParams(window.location.search);
+        const villageParam = params.get('village');
+        const surveyParam = params.get('survey');
+        if (villageParam && surveyParam) {
+            villageInput.value = villageParam;
+            surveyInput.value = surveyParam;
+            searchForm.dispatchEvent(new Event('submit', { cancelable: true }));
+        }
 
-            // Update user navigation
-            function updateUserNav() {
-                const token = localStorage.getItem('user_token') || sessionStorage.getItem('user_token');
-                const userData = JSON.parse(localStorage.getItem('user_data') || sessionStorage.getItem('user_data') || '{}');
-                const userSection = document.getElementById('userSection');
+        // User Navigation Auth State
+        function updateUserNav() {
+            const token = localStorage.getItem('user_token') || sessionStorage.getItem('user_token');
+            const userData = JSON.parse(localStorage.getItem('user_data') || sessionStorage.getItem('user_data') || '{}');
+            const userSection = document.getElementById('userSection');
 
-                if (token && userData.username) {
-                    userSection.innerHTML = `
-                    <div class="user-profile">
-                        <div class="user-name">👤 ${userData.first_name || userData.username}</div>
-                    </div>
-                    <a href="/static/dashboard.html" class="btn-auth btn-login">
-                        <i class="fas fa-home"></i> Dashboard
-                    </a>
-                    <button class="btn-auth btn-logout" id="logoutNavBtn">
-                        <i class="fas fa-sign-out-alt"></i> Logout
-                    </button>
-                `;
-                    document.getElementById('logoutNavBtn').addEventListener('click', () => {
-                        localStorage.removeItem('user_token');
-                        localStorage.removeItem('user_data');
-                        sessionStorage.removeItem('user_token');
-                        sessionStorage.removeItem('user_data');
-                        window.location.href = '/';
-                    });
-                }
-            }
-        </script>
-
-        <!-- Sidebar Menu -->
-        <div id="sidebar"
-            style="position: fixed; top: 0; left: -300px; width: 300px; height: 100%; background: white; box-shadow: 2px 0 10px rgba(0,0,0,0.2); transition: all 0.3s ease; z-index: 2000; padding: 30px;">
-            <div
-                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; border-bottom: 2px solid #f0f0f0; padding-bottom: 20px;">
-                <h2 style="color: #667eea;"><i class="fas fa-gavel"></i> Bhoomi</h2>
-                <button id="closeMenuBtn"
-                    style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #666;">
-                    <i class="fas fa-times"></i>
+            if (token && userData.username) {
+                userSection.innerHTML = `
+                <div class="user-profile">
+                    <div class="user-name"><i class="fas fa-user-circle" style="color: var(--primary); font-size: 1.2rem;"></i> ${userData.first_name || userData.username}</div>
+                </div>
+                <a href="/static/dashboard.html" class="btn-auth btn-register" style="border: none; background: #f1f5f9; color: var(--text);">
+                    <i class="fas fa-chart-line"></i> Dashboard
+                </a>
+                <button class="btn-auth btn-logout" id="logoutNavBtn">
+                    <i class="fas fa-sign-out-alt"></i> Logout
                 </button>
-            </div>
-            <nav style="display: flex; flex-direction: column; gap: 20px;">
-                <a href="/static/index.html"
-                    style="text-decoration: none; color: #333; font-weight: 600; font-size: 1.1rem; display: flex; align-items: center; gap: 12px; padding: 10px; border-radius: 8px; transition: all 0.2s; background: #f0f4ff; color: #667eea;">
-                    <i class="fas fa-search" style="width: 20px;"></i> Search Case
-                </a>
-                <a href="/static/dashboard.html"
-                    style="text-decoration: none; color: #333; font-weight: 600; font-size: 1.1rem; display: flex; align-items: center; gap: 12px; padding: 10px; border-radius: 8px; transition: all 0.2s;">
-                    <i class="fas fa-home" style="color: #667eea; width: 20px;"></i> Dashboard
-                </a>
-                <a href="/static/admin.html"
-                    style="text-decoration: none; color: #333; font-weight: 600; font-size: 1.1rem; display: flex; align-items: center; gap: 12px; padding: 10px; border-radius: 8px; transition: all 0.2s;">
-                    <i class="fas fa-lock" style="color: #667eea; width: 20px;"></i> Admin Panel
-                </a>
-            </nav>
-        </div>
-        <div id="sidebarOverlay"
-            style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1999;">
-        </div>
+            `;
+                document.getElementById('logoutNavBtn').addEventListener('click', () => {
+                    localStorage.removeItem('user_token');
+                    localStorage.removeItem('user_data');
+                    sessionStorage.removeItem('user_token');
+                    sessionStorage.removeItem('user_data');
+                    window.location.href = '/';
+                });
+            }
+        }
 
-        <script>
-            // ... (existing script)
+        // Sidebar Menu Logic
+        const menuBtn = document.getElementById('menuBtn');
+        const sidebar = document.getElementById('sidebar');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+        const closeMenuBtn = document.getElementById('closeMenuBtn');
 
-            // Sidebar Menu Logic
-            const menuBtn = document.getElementById('menuBtn');
-            const sidebar = document.getElementById('sidebar');
-            const sidebarOverlay = document.getElementById('sidebarOverlay');
-            const closeMenuBtn = document.getElementById('closeMenuBtn');
+        function openSidebar() {
+            sidebar.style.left = '0';
+            sidebarOverlay.style.display = 'block';
+            // Slight delay for opacity transition
+            setTimeout(() => sidebarOverlay.style.opacity = '1', 10);
+        }
 
-            menuBtn.addEventListener('click', () => {
-                sidebar.style.left = '0';
-                sidebarOverlay.style.display = 'block';
-            });
+        function closeSidebar() {
+            sidebar.style.left = '-320px';
+            sidebarOverlay.style.opacity = '0';
+            setTimeout(() => sidebarOverlay.style.display = 'none', 300);
+        }
 
-            const closeSidebar = () => {
-                sidebar.style.left = '-300px';
-                sidebarOverlay.style.display = 'none';
-            };
+        menuBtn.addEventListener('click', openSidebar);
+        closeMenuBtn.addEventListener('click', closeSidebar);
+        sidebarOverlay.addEventListener('click', closeSidebar);
 
-            closeMenuBtn.addEventListener('click', closeSidebar);
-            sidebarOverlay.addEventListener('click', closeSidebar);
-
-            // ...
-            updateUserNav();
-        </script>
-    </div>
+        // Initialize state
+        updateUserNav();
+        setTimeout(() => villageInput.focus(), 500);
+    </script>
 </body>
 
 </html>
