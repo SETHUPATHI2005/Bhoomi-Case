@@ -82,6 +82,45 @@
             margin-bottom: 30px;
         }
 
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stats-card {
+            background: var(--surface);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--surface-border);
+            border-radius: 20px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.03);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .stats-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+        }
+
+        .stats-number {
+            font-size: 2.8rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 5px;
+            line-height: 1;
+        }
+
+        .stats-label {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+
         .info-box,
         .example-box {
             background: rgba(79, 70, 229, 0.05);
@@ -449,7 +488,23 @@
     <div id="adminAppContainer" class="container">
         <div class="header">
             <h1>Admin Control Center</h1>
-            <p style="color: #94a3b8;">Manage immutable court cases, parcel blueprints, and user access levels.</p>
+            <p style="color: var(--text-light);">Manage immutable court cases, parcel blueprints, and user access
+                levels.</p>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stats-card">
+                <div id="statTotalSubmissions" class="stats-number">00</div>
+                <div class="stats-label">Total Submissions</div>
+            </div>
+            <div class="stats-card">
+                <div id="statPendingVerification" class="stats-number">00</div>
+                <div class="stats-label">Pending Verification</div>
+            </div>
+            <div class="stats-card">
+                <div id="statApprovedCases" class="stats-number">00</div>
+                <div class="stats-label">Approved Cases</div>
+            </div>
         </div>
 
         <div class="card">
@@ -544,12 +599,26 @@
             <!-- Management Section -->
             <div style="border-top: 1px solid var(--surface-border); margin: 40px 0; padding-top: 30px;">
                 <div style="display: flex; gap: 15px; margin-bottom: 30px; justify-content: center;">
+                    <button id="submissionsMgmtTab" class="tab-button">
+                        <i class="fas fa-file-signature"></i> User Submissions
+                    </button>
                     <button id="casesMgmtTab" class="tab-button active">
                         <i class="fas fa-boxes-stacked"></i> Manage Records
                     </button>
                     <button id="usersMgmtTab" class="tab-button">
                         <i class="fas fa-users-gear"></i> Manage Access
                     </button>
+                </div>
+
+                <!-- Citizen Submissions Tab -->
+                <div id="submissionsMgmtPanel" style="display: none;">
+                    <button id="loadSubmissionsBtn" class="btn-upload"
+                        style="width: 100%; margin-bottom: 20px; background: rgba(236, 72, 153, 0.1); color: #ec4899; border: 1px solid rgba(236, 72, 153, 0.3);">
+                        <i class="fas fa-rotate"></i> Sync User Submissions
+                    </button>
+                    <div id="submissionsContainer" style="display: none;">
+                        <div id="submissionsList"></div>
+                    </div>
                 </div>
 
                 <!-- Cases Management Tab -->
@@ -650,10 +719,44 @@
 
 
     <script>
+        const token = localStorage.getItem('user_token') || sessionStorage.getItem('user_token');
         const uploadForm = document.getElementById('uploadForm');
-        const tokenInput = document.getElementById('token');
         const payloadInput = document.getElementById('payload');
         const statusDiv = document.getElementById('status');
+
+        async function updateDashStats() {
+            try {
+                const response = await fetch('/api/v1/admin/stats', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (response.ok) {
+                    const stats = await response.json();
+                    animateValue("statTotalSubmissions", stats.total_submissions);
+                    animateValue("statPendingVerification", stats.pending_verification);
+                    animateValue("statApprovedCases", stats.approved_cases);
+                }
+            } catch (err) { console.error("Stats update failed", err); }
+        }
+
+        function animateValue(id, end) {
+            const obj = document.getElementById(id);
+            if (!obj) return;
+            let start = 0;
+            const duration = 800;
+            const step = Math.ceil(end / (duration / 16)) || 1;
+            const timer = setInterval(() => {
+                start += step;
+                if (start >= end) {
+                    obj.textContent = end.toString().padStart(2, '0');
+                    clearInterval(timer);
+                } else {
+                    obj.textContent = start.toString().padStart(2, '0');
+                }
+            }, 16);
+        }
+
+        // Initial load
+        updateDashStats();
 
         function showStatus(message, type) {
             statusDiv.textContent = message;
@@ -705,6 +808,7 @@
                 if (response.ok) {
                     showStatus('✅ Upload successful! Record for "' + village + '" added.', 'success');
                     uploadForm.reset();
+                    updateDashStats();
                 } else if (response.status === 401 || response.status === 403) {
                     showStatus('❌ Unauthorized: Invalid admin token', 'error');
                 } else {
@@ -855,6 +959,7 @@
 
                 if (response.status === 200) {
                     showStatus('✅ Case deleted successfully!', 'success');
+                    updateDashStats();
                     setTimeout(() => {
                         loadCasesBtn.click(); // Reload cases
                     }, 1000);
@@ -885,6 +990,7 @@
 
                 if (response.status === 200) {
                     showEditStatus('✅ Case updated successfully!', 'success');
+                    updateDashStats();
                     setTimeout(() => {
                         editCaseModal.style.display = 'none';
                         loadCasesBtn.click();
@@ -906,25 +1012,127 @@
         });
 
         // Tab switching functionality
+        const submissionsMgmtTab = document.getElementById('submissionsMgmtTab');
         const casesMgmtTab = document.getElementById('casesMgmtTab');
         const usersMgmtTab = document.getElementById('usersMgmtTab');
+
+        const submissionsMgmtPanel = document.getElementById('submissionsMgmtPanel');
         const casesMgmtPanel = document.getElementById('casesMgmtPanel');
         const usersMgmtPanel = document.getElementById('usersMgmtPanel');
 
-        casesMgmtTab.addEventListener('click', () => {
-            casesMgmtTab.classList.add('active');
-            usersMgmtTab.classList.remove('active');
-            casesMgmtPanel.style.display = 'block';
-            usersMgmtPanel.style.display = 'none';
+        const tabs = [
+            { btn: submissionsMgmtTab, panel: submissionsMgmtPanel },
+            { btn: casesMgmtTab, panel: casesMgmtPanel },
+            { btn: usersMgmtTab, panel: usersMgmtPanel }
+        ];
+
+        tabs.forEach(tab => {
+            tab.btn.addEventListener('click', () => {
+                tabs.forEach(t => {
+                    t.btn.classList.remove('active');
+                    t.panel.style.display = 'none';
+                });
+                tab.btn.classList.add('active');
+                tab.panel.style.display = 'block';
+            });
         });
 
-        usersMgmtTab.addEventListener('click', () => {
-            usersMgmtTab.classList.add('active');
-            casesMgmtTab.classList.remove('active');
-            usersMgmtPanel.style.display = 'block';
-            casesMgmtPanel.style.display = 'none';
-        });
+        // Citizen Submissions Logic
+        const loadSubmissionsBtn = document.getElementById('loadSubmissionsBtn');
+        const submissionsList = document.getElementById('submissionsList');
+        const submissionsContainer = document.getElementById('submissionsContainer');
 
+        loadSubmissionsBtn.onclick = async () => {
+            const token = localStorage.getItem('user_token');
+            loadSubmissionsBtn.disabled = true;
+            loadSubmissionsBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Syncing...';
+            try {
+                const response = await fetch('/api/v1/admin/submissions', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    displaySubmissions(data.submissions);
+                    submissionsContainer.style.display = 'block';
+                } else {
+                    showStatus('❌ Failed to sync submissions', 'error');
+                }
+            } catch (err) {
+                showStatus('❌ Error syncing: ' + err.message, 'error');
+            } finally {
+                loadSubmissionsBtn.disabled = false;
+                loadSubmissionsBtn.innerHTML = '<i class="fas fa-rotate"></i> Sync User Submissions';
+            }
+        };
+
+        function displaySubmissions(subs) {
+            if (subs.length === 0) {
+                submissionsList.innerHTML = '<p style="text-align: center; color: var(--text-light); padding: 20px;">No pending submissions found.</p>';
+                return;
+            }
+            submissionsList.innerHTML = subs.map(s => `
+                <div class="list-item">
+                    <div class="detail-item">
+                        <i class="fas fa-user-circle" style="color: var(--primary)"></i>
+                        <div>
+                            <span class="detail-label">Submitted By</span>
+                            <span class="detail-value">${s.submitted_by}</span>
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0;">
+                        <div class="detail-item">
+                             <div><span class="detail-label">Village</span><span class="detail-value">${s.village}</span></div>
+                        </div>
+                        <div class="detail-item">
+                             <div><span class="detail-label">Survey</span><span class="detail-value">${s.survey_number}</span></div>
+                        </div>
+                    </div>
+                    <div class="button-group" style="margin-top: 15px;">
+                        <button class="btn-upload" onclick="approveSubmission('${s.submission_id}')" style="flex: 1; background: var(--success);">
+                            <i class="fas fa-check"></i> Approve & Verify
+                        </button>
+                        <button class="btn-cancel" onclick="rejectSubmission('${s.submission_id}')" style="flex: 1;">
+                            <i class="fas fa-times"></i> Reject
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        window.approveSubmission = async (id) => {
+            const token = localStorage.getItem('user_token');
+            try {
+                const res = await fetch(`/api/v1/admin/submissions/${id}/approve`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    showStatus('✅ Submission approved and parcel updated!', 'success');
+                    loadSubmissionsBtn.click();
+                    updateDashStats();
+                } else {
+                    showStatus('❌ Approval failed', 'error');
+                }
+            } catch (err) { showStatus('❌ Error: ' + err.message, 'error'); }
+        };
+
+        window.rejectSubmission = async (id) => {
+            const token = localStorage.getItem('user_token');
+            if (!confirm("Reject this submission?")) return;
+            try {
+                const res = await fetch(`/api/v1/admin/submissions/${id}/reject`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    showStatus('✅ Submission rejected.', 'info');
+                    loadSubmissionsBtn.click();
+                    updateDashStats();
+                } else {
+                    showStatus('❌ Rejection failed', 'error');
+                }
+            } catch (err) { showStatus('❌ Error: ' + err.message, 'error'); }
+        };
         // User management functionality
         const loadUsersBtn = document.getElementById('loadUsersBtn');
         const usersContainer = document.getElementById('usersContainer');

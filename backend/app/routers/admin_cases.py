@@ -31,6 +31,28 @@ async def list_submissions(admin_id: str = Depends(verify_admin)):
         logger.error(f"List submissions error: {e}")
         raise HTTPException(status_code=500, detail="Failed to list submissions")
 
+@router.get("/stats")
+async def get_dashboard_stats(admin_id: str = Depends(verify_admin)):
+    """Get aggregate statistics for the admin dashboard."""
+    try:
+        citizen_subs = load_citizen_submissions()
+        admin_uploads = load_admin_uploads()
+        
+        pending_count = len([s for s in citizen_subs if s.get("status") == "pending_verification"])
+        
+        approved_count = 0
+        for parcel in admin_uploads:
+            approved_count += len(parcel.get("linked_cases", []))
+            
+        return JSONResponse(content={
+            "total_submissions": len(citizen_subs),
+            "pending_verification": pending_count,
+            "approved_cases": approved_count
+        })
+    except Exception as e:
+        logger.error(f"Stats error: {e}")
+        raise HTTPException(status_code=500, detail="Failed to fetch stats")
+
 @router.post("/submissions/{sub_id}/approve")
 async def approve_submission(sub_id: str, admin_id: str = Depends(verify_admin)):
     """Approve a citizen case submission and add it to the active parcels."""
