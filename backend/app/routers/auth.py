@@ -155,6 +155,10 @@ async def login(request: Request):
 
         user = find_user_by_username(username)
         if not user:
+            # Fallback: check if they entered their email instead of username
+            user = find_user_by_email(username)
+            
+        if not user:
             raise HTTPException(status_code=404, detail="User not found")
 
         if not user.get("email_verified", False):
