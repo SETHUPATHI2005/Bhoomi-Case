@@ -136,15 +136,63 @@
         }
 
         .form-group {
+            margin-bottom: 22px;
+        }
+
+        .form-section {
+            margin-bottom: 40px;
+            padding-bottom: 25px;
+            border-bottom: 1px solid var(--surface-border);
+        }
+
+        .form-section:last-of-type {
+            border-bottom: none;
+            margin-bottom: 15px;
+        }
+
+        .section-title {
+            font-size: 1.15rem;
+            font-weight: 700;
             margin-bottom: 20px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: rgba(79, 70, 229, 0.1);
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+
+            .grid-2,
+            .grid-3 {
+                grid-template-columns: 1fr;
+            }
         }
 
         label {
             display: block;
             margin-bottom: 8px;
-            font-weight: 600;
             color: var(--text);
-            font-size: 0.95rem;
+            font-weight: 600;
+            font-size: 0.9rem;
         }
 
         input[type="text"],
@@ -508,63 +556,248 @@
         </div>
 
         <div class="card">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h2 style="font-size: 1.4rem;"><i class="fas fa-cloud-upload-alt"></i> New Record Submission</h2>
-                <button type="button" id="autoFillBtn">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+                <h2 style="font-size: 1.5rem; color: var(--primary);"><i class="fas fa-rocket"></i> Launch New Case</h2>
+                <button type="button" id="autoFillBtn" class="btn-small"
+                    style="background: rgba(99, 102, 241, 0.1); color: var(--primary); border: 1px solid rgba(99, 102, 241, 0.2);">
                     <i class="fas fa-magic"></i> Auto-Fill Sample Data
                 </button>
             </div>
 
             <form id="uploadForm">
-                <div class="form-group">
-                    <label for="village_field">Village/Jurisdiction Name</label>
-                    <input type="text" id="village_field" placeholder="e.g. Verification Village" required>
+                <!-- Section 1: Property Information -->
+                <div class="form-section">
+                    <div class="section-title"><i class="fas fa-mountain-sun"></i> Property Information</div>
+                    <div class="grid-3">
+                        <div class="form-group">
+                            <label for="village_field">Village Name *</label>
+                            <input type="text" id="village_field" placeholder="e.g. Kisanpur" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="survey_number_field">Survey Number *</label>
+                            <input type="text" id="survey_number_field" placeholder="e.g. 123" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="property_type_field">Property Type</label>
+                            <input type="text" id="property_type_field" placeholder="e.g. Agricultural Land">
+                        </div>
+                    </div>
+                    <div class="grid-3">
+                        <div class="form-group">
+                            <label for="area_sqft_field">Area (sq.ft)</label>
+                            <input type="text" id="area_sqft_field" placeholder="e.g. 4500">
+                        </div>
+                        <div class="form-group">
+                            <label for="area_acres_field">Area (Acres)</label>
+                            <input type="text" id="area_acres_field" placeholder="e.g. 0.103">
+                        </div>
+                        <div class="form-group">
+                            <label for="coordinates_field">Coordinates</label>
+                            <input type="text" id="coordinates_field" placeholder="e.g. 28.7041,77.1025">
+                        </div>
+                    </div>
                 </div>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
-                    <div class="form-group" style="margin-bottom: 0;">
-                        <label for="survey_number_field">Survey Number Blueprint</label>
-                        <input type="text" id="survey_number_field" placeholder="e.g. V-999" required>
-                    </div>
-                    <div class="form-group" style="margin-bottom: 0;">
-                        <label for="property_type_field">Property Classification</label>
-                        <input type="text" id="property_type_field" placeholder="e.g. Agricultural Land">
-                    </div>
-                </div>
-
-                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                <!-- Section 2: Location Details -->
+                <div class="form-section">
+                    <div class="section-title"><i class="fas fa-map-location-dot"></i> Location Details</div>
                     <div class="form-group">
-                        <label for="case_doc_field"><i class="fas fa-file-pdf" style="color: #ef4444;"></i> Case
-                            Document</label>
-                        <input type="file" id="case_doc_field" class="token-input">
+                        <label for="exact_address_field">Exact Address</label>
+                        <input type="text" id="exact_address_field"
+                            placeholder="e.g. Near Kisanpur Primary School, Main Road">
                     </div>
-                    <div class="form-group">
-                        <label for="fir_doc_field"><i class="fas fa-file-invoice" style="color: #f59e0b;"></i> FIR
-                            Document</label>
-                        <input type="file" id="fir_doc_field" class="token-input">
-                    </div>
-                    <div class="form-group">
-                        <label for="land_doc_field"><i class="fas fa-file-contract" style="color: #10b981;"></i> Land
-                            Blueprint</label>
-                        <input type="file" id="land_doc_field" class="token-input">
+                    <div class="grid-3">
+                        <div class="form-group">
+                            <label for="district_field">District</label>
+                            <input type="text" id="district_field" placeholder="e.g. Bhoomi">
+                        </div>
+                        <div class="form-group">
+                            <label for="state_field">State</label>
+                            <input type="text" id="state_field" placeholder="e.g. Telangana">
+                        </div>
+                        <div class="form-group">
+                            <label for="pincode_field">PIN Code</label>
+                            <input type="text" id="pincode_field" placeholder="e.g. 500001">
+                        </div>
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label for="payload">
-                        <i class="fas fa-code"></i> Extended Metadata (JSON)
-                    </label>
-                    <textarea id="payload"
-                        placeholder='{"area_sqft": 5000, "location": {"latitude": 13.0, "longitude": 80.0}, "linked_cases": []}'
-                        style="min-height: 120px;">{}</textarea>
+                <!-- Section 3: Land Records -->
+                <div class="form-section">
+                    <div class="section-title"><i class="fas fa-file-contract"></i> Land Records</div>
+                    <div class="grid-3">
+                        <div class="form-group">
+                            <label for="original_owner_field">Original Owner</label>
+                            <input type="text" id="original_owner_field" placeholder="e.g. Hari Ram Singh">
+                        </div>
+                        <div class="form-group">
+                            <label for="current_owner_field">Current Owner</label>
+                            <input type="text" id="current_owner_field" placeholder="e.g. Ram Kumar Singh">
+                        </div>
+                        <div class="form-group">
+                            <label for="owner_since_field">Owner Since</label>
+                            <input type="text" id="owner_since_field" placeholder="e.g. 1995">
+                        </div>
+                    </div>
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label for="mutation_number_field">Mutation Number</label>
+                            <input type="text" id="mutation_number_field" placeholder="e.g. MUT-2020-1234">
+                        </div>
+                        <div class="form-group">
+                            <label for="rtc_number_field">RTC Number</label>
+                            <input type="text" id="rtc_number_field" placeholder="e.g. RTC-2024-9876">
+                        </div>
+                    </div>
+                    <div class="grid-3">
+                        <div class="form-group">
+                            <label for="passbook_field">Pattadar Passbook</label>
+                            <input type="text" id="passbook_field" placeholder="e.g. PPB-123-2024">
+                        </div>
+                        <div class="form-group" style="grid-column: span 2;">
+                            <label for="lrc_field">Land Registration Certificate (LRC)</label>
+                            <input type="text" id="lrc_field" placeholder="e.g. LRC-123/2015">
+                        </div>
+                    </div>
                 </div>
 
-                <div class="button-group">
-                    <button type="submit" class="btn-upload">
-                        <i class="fas fa-arrow-up-from-bracket"></i> Commit Record Securely
+                <!-- Section 4: Case Information -->
+                <div class="form-section">
+                    <div class="section-title"><i class="fas fa-gavel"></i> Case Information</div>
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label for="court_field">Court</label>
+                            <input type="text" id="court_field" placeholder="e.g. District Court - Bhoomi">
+                        </div>
+                        <div class="form-group">
+                            <label for="bench_field">Bench</label>
+                            <input type="text" id="bench_field" placeholder="e.g. Civil Division - I">
+                        </div>
+                    </div>
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label for="case_type_field">Case Type</label>
+                            <input type="text" id="case_type_field" placeholder="e.g. Original Suit - Land Dispute">
+                        </div>
+                        <div class="form-group">
+                            <label for="case_number_field">Case Number</label>
+                            <input type="text" id="case_number_field" placeholder="e.g. OS.NO.234/2024">
+                        </div>
+                    </div>
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label for="filed_date_field">Filed Date</label>
+                            <input type="date" id="filed_date_field">
+                        </div>
+                        <div class="form-group">
+                            <label for="next_hearing_field">Next Hearing Date</label>
+                            <input type="date" id="next_hearing_field">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="case_description_field">Case Description</label>
+                        <textarea id="case_description_field" placeholder="Brief description of the case..."
+                            style="min-height: 80px;"></textarea>
+                    </div>
+                </div>
+
+                <!-- Section 5: Parties Involved -->
+                <div class="form-section">
+                    <div class="section-title"><i class="fas fa-users-rectangle"></i> Parties Involved</div>
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label for="plaintiffs_field">Plaintiff(s)</label>
+                            <input type="text" id="plaintiffs_field" placeholder="e.g. Ram Kumar Singh">
+                        </div>
+                        <div class="form-group">
+                            <label for="defendants_field">Defendant(s)</label>
+                            <input type="text" id="defendants_field" placeholder="e.g. Priya Sharma">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 6: FIR Details (Optional) -->
+                <div class="form-section">
+                    <div class="section-title"><i class="fas fa-shield-halved"></i> FIR Details (Optional)</div>
+                    <div class="grid-3">
+                        <div class="form-group">
+                            <label for="fir_number_field">FIR Number</label>
+                            <input type="text" id="fir_number_field" placeholder="e.g. FIR-2024-1023">
+                        </div>
+                        <div class="form-group">
+                            <label for="fir_date_field">FIR Date</label>
+                            <input type="date" id="fir_date_field">
+                        </div>
+                        <div class="form-group">
+                            <label for="police_station_field">Police Station</label>
+                            <input type="text" id="police_station_field" placeholder="e.g. Kisanpur Police Station">
+                        </div>
+                    </div>
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label for="fir_status_field">FIR Status</label>
+                            <input type="text" id="fir_status_field" placeholder="e.g. Under Investigation">
+                        </div>
+                        <div class="form-group">
+                            <label for="ipc_section_field">IPC Section</label>
+                            <input type="text" id="ipc_section_field" placeholder="e.g. Section 406/420/468 IPC">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="offense_description_field">Offense Description</label>
+                        <textarea id="offense_description_field" placeholder="Brief description of the offense..."
+                            style="min-height: 60px;"></textarea>
+                    </div>
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label for="filed_by_field">Filed By</label>
+                            <input type="text" id="filed_by_field" placeholder="e.g. Ram Kumar Singh">
+                        </div>
+                        <div class="form-group">
+                            <label for="investigating_officer_field">Investigating Officer</label>
+                            <input type="text" id="investigating_officer_field" placeholder="e.g. SI Ramesh Kumar">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 7: Document Uploads -->
+                <div class="form-section">
+                    <div class="section-title"><i class="fas fa-file-arrow-up"></i> Document Uploads</div>
+                    <div class="grid-3">
+                        <div class="form-group">
+                            <label for="case_doc_field">Primary Case Document</label>
+                            <input type="file" id="case_doc_field" class="token-input">
+                        </div>
+                        <div class="form-group">
+                            <label for="fir_doc_field">FIR Document</label>
+                            <input type="file" id="fir_doc_field" class="token-input">
+                        </div>
+                        <div class="form-group">
+                            <label for="land_doc_field">Land Document</label>
+                            <input type="file" id="land_doc_field" class="token-input">
+                        </div>
+                        <div class="form-group">
+                            <label for="survey_report_field">Survey Report</label>
+                            <input type="file" id="survey_report_field" class="token-input">
+                        </div>
+                        <div class="form-group">
+                            <label for="rtc_doc_field">RTC Certificate</label>
+                            <input type="file" id="rtc_doc_field" class="token-input">
+                        </div>
+                        <div class="form-group">
+                            <label for="mutation_doc_field">Mutation Deed</label>
+                            <input type="file" id="mutation_doc_field" class="token-input">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="button-group" style="margin-top: 30px;">
+                    <button type="submit" class="btn-upload"
+                        style="background: var(--primary); flex: 2; padding: 18px;">
+                        <i class="fas fa-check-double"></i> Finalize Submission
                     </button>
-                    <button type="reset" class="btn-cancel">
-                        <i class="fas fa-undo"></i> Clear Form
+                    <button type="reset" class="btn-cancel" style="flex: 1;">
+                        <i class="fas fa-trash-can"></i> Clear Form
                     </button>
                 </div>
             </form>
@@ -573,26 +806,55 @@
 
             <script>
                 document.getElementById('autoFillBtn').addEventListener('click', () => {
-                    document.getElementById('village_field').value = "Sample Jurisdiction Node";
-                    document.getElementById('survey_number_field').value = "SV-" + Math.floor(Math.random() * 10000);
-                    document.getElementById('property_type_field').value = "Regulated Land Trust";
-                    document.getElementById('payload').value = JSON.stringify({
-                        "area_sqft": 45000,
-                        "area_acres": 1.03,
-                        "location": {
-                            "exact_location": "Northern Quadrant Boundary",
-                            "latitude": 13.0827,
-                            "longitude": 80.2707
-                        },
-                        "linked_cases": [
-                            {
-                                "case_id": "LIT-" + Math.floor(Math.random() * 99999),
-                                "court": "High Court",
-                                "case_type": "Title Dispute",
-                                "status": "ongoing"
-                            }
-                        ]
-                    }, null, 4);
+                    const randomId = Math.floor(Math.random() * 9999);
+
+                    // Property Info
+                    document.getElementById('village_field').value = "Kisanpur Village";
+                    document.getElementById('survey_number_field').value = "KP-" + randomId;
+                    document.getElementById('property_type_field').value = "Agricultural / Residential";
+                    document.getElementById('area_sqft_field').value = "4500";
+                    document.getElementById('area_acres_field').value = "0.103";
+                    document.getElementById('coordinates_field').value = "28.7041, 77.1025";
+
+                    // Location
+                    document.getElementById('exact_address_field').value = "Plot " + randomId + ", Near Kisanpur Primary School, Main Road";
+                    document.getElementById('district_field').value = "Bhoomi District";
+                    document.getElementById('state_field').value = "Telangana";
+                    document.getElementById('pincode_field').value = "500001";
+
+                    // Land Records
+                    document.getElementById('original_owner_field').value = "Hari Ram Singh";
+                    document.getElementById('current_owner_field').value = "Ram Kumar Singh";
+                    document.getElementById('owner_since_field').value = "15-08-1995";
+                    document.getElementById('mutation_number_field').value = "MUT-2020-" + randomId;
+                    document.getElementById('rtc_number_field').value = "RTC-2024-" + (randomId + 100);
+                    document.getElementById('passbook_field').value = "PPB-" + randomId + "-2024";
+                    document.getElementById('lrc_field').value = "LRC-" + randomId + "/2015";
+
+                    // Case Info
+                    document.getElementById('court_field').value = "District Court - Bhoomi";
+                    document.getElementById('bench_field').value = "Civil Division - I";
+                    document.getElementById('case_type_field').value = "Original Suit - Land Title Dispute";
+                    document.getElementById('case_number_field').value = "OS.NO." + randomId + "/2024";
+                    document.getElementById('filed_date_field').value = "2024-01-15";
+                    document.getElementById('next_hearing_field').value = "2024-06-20";
+                    document.getElementById('case_description_field').value = "Dispute regarding the legal boundary and title of agricultural land KP-" + randomId + ".";
+
+                    // Parties
+                    document.getElementById('plaintiffs_field').value = "Ram Kumar Singh";
+                    document.getElementById('defendants_field').value = "Priya Sharma, Local Land Trust";
+
+                    // FIR (Optional)
+                    document.getElementById('fir_number_field').value = "FIR-2024-" + randomId;
+                    document.getElementById('fir_date_field').value = "2024-02-10";
+                    document.getElementById('police_station_field').value = "Kisanpur Police Station";
+                    document.getElementById('fir_status_field').value = "Under Investigation";
+                    document.getElementById('ipc_section_field').value = "Section 406/420/468 IPC";
+                    document.getElementById('offense_description_field').value = "Alleged forgery of land registration documents for parcel KP-" + randomId + ".";
+                    document.getElementById('filed_by_field').value = "Ram Kumar Singh";
+                    document.getElementById('investigating_officer_field').value = "SI Ramesh Kumar";
+
+                    showStatus('✨ Form auto-filled with sample case data!', 'success');
                 });
             </script>
 
@@ -721,7 +983,6 @@
     <script>
         const token = localStorage.getItem('user_token') || sessionStorage.getItem('user_token');
         const uploadForm = document.getElementById('uploadForm');
-        const payloadInput = document.getElementById('payload');
         const statusDiv = document.getElementById('status');
 
         async function updateDashStats() {
@@ -766,26 +1027,39 @@
         uploadForm.addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            const village = document.getElementById('village_field').value.trim();
-            const survey = document.getElementById('survey_number_field').value.trim();
-            const propertyType = document.getElementById('property_type_field').value.trim() || "Unknown";
-            const payloadRaw = payloadInput.value.trim() || "{}";
-
             const formData = new FormData();
-            formData.append('village', village);
-            formData.append('survey_number', survey);
-            formData.append('property_type', propertyType);
-            formData.append('payload_json', payloadRaw);
 
-            const caseFile = document.getElementById('case_doc_field').files[0];
-            const firFile = document.getElementById('fir_doc_field').files[0];
-            const landFile = document.getElementById('land_doc_field').files[0];
+            // Collect all text fields
+            const fields = [
+                'village', 'survey_number', 'property_type', 'area_sqft', 'area_acres', 'coordinates',
+                'exact_address', 'district', 'state', 'pincode',
+                'original_owner', 'current_owner', 'owner_since', 'mutation_number', 'rtc_number', 'passbook', 'lrc',
+                'court', 'bench', 'case_type', 'case_number', 'filed_date', 'next_hearing_date', 'case_description',
+                'plaintiffs', 'defendants',
+                'fir_number', 'fir_date', 'police_station', 'fir_status', 'ipc_section', 'offense_description', 'filed_by', 'investigating_officer'
+            ];
 
-            if (caseFile) formData.append('case_doc', caseFile);
-            if (firFile) formData.append('fir_doc', firFile);
-            if (landFile) formData.append('land_doc', landFile);
+            fields.forEach(f => {
+                const el = document.getElementById(f + '_field');
+                if (el) formData.append(f, el.value.trim());
+            });
 
-            showStatus('⏳ Uploading multipart data...', 'loading');
+            // Collect all files
+            const files = {
+                'case_doc': 'case_doc_field',
+                'fir_doc': 'fir_doc_field',
+                'land_doc': 'land_doc_field',
+                'survey_report': 'survey_report_field',
+                'rtc_doc': 'rtc_doc_field',
+                'mutation_deed': 'mutation_doc_field'
+            };
+
+            for (const [key, id] of Object.entries(files)) {
+                const file = document.getElementById(id).files[0];
+                if (file) formData.append(key, file);
+            }
+
+            showStatus('⏳ Uploading comprehensive record...', 'loading');
 
             const token = localStorage.getItem('user_token');
             if (!token) {
@@ -797,26 +1071,21 @@
             try {
                 const response = await fetch('/api/v1/admin/upload-multipart', {
                     method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    },
+                    headers: { 'Authorization': `Bearer ${token}` },
                     body: formData
                 });
 
                 const result = await response.json();
 
                 if (response.ok) {
-                    showStatus('✅ Upload successful! Record for "' + village + '" added.', 'success');
+                    showStatus('✅ Case launched successfully! Record added to registry.', 'success');
                     uploadForm.reset();
                     updateDashStats();
-                } else if (response.status === 401 || response.status === 403) {
-                    showStatus('❌ Unauthorized: Invalid admin token', 'error');
                 } else {
-                    showStatus('❌ Upload failed: ' + (result.detail || 'Server error'), 'error');
+                    showStatus('❌ Submission failed: ' + (result.detail || 'Server error'), 'error');
                 }
             } catch (error) {
                 showStatus('❌ Network error: ' + error.message, 'error');
-                console.error('Upload error:', error);
             }
         });
 

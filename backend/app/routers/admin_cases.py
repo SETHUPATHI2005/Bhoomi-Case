@@ -140,60 +140,93 @@ async def reject_submission(sub_id: str, admin_id: str = Depends(verify_admin)):
 
 @router.post("/upload-multipart")
 async def admin_upload_multipart(
-    village: str = Form(...),
-    survey_number: str = Form(...),
-    property_type: str = Form("Unknown"),
-    payload_json: str = Form(None),
+    request: Request,
     case_doc: Optional[UploadFile] = File(None),
     fir_doc: Optional[UploadFile] = File(None),
     land_doc: Optional[UploadFile] = File(None),
+    survey_report: Optional[UploadFile] = File(None),
+    rtc_doc: Optional[UploadFile] = File(None),
+    mutation_deed: Optional[UploadFile] = File(None),
     admin_id: str = Depends(verify_admin)
 ):
-    """Multipart upload for admins with file support."""
+    """Enhanced multipart upload for comprehensive case data."""
     try:
-        # Parse payload if provided
-        data = {}
-        if payload_json:
-            try:
-                data = json.loads(payload_json)
-            except:
-                pass
+        form_data = await request.form()
         
-        # Override with form fields
-        data["village"] = village
-        data["survey_number"] = survey_number
-        data["property_type"] = property_type
+        # Build nested data structure
+        data = {
+            "village": form_data.get("village", ""),
+            "survey_number": form_data.get("survey_number", ""),
+            "property_type": form_data.get("property_type", "Unknown"),
+            "area_sqft": form_data.get("area_sqft", ""),
+            "area_acres": form_data.get("area_acres", ""),
+            "coordinates": form_data.get("coordinates", ""),
+            "location": {
+                "exact_address": form_data.get("exact_address", ""),
+                "district": form_data.get("district", ""),
+                "state": form_data.get("state", ""),
+                "pincode": form_data.get("pincode", ""),
+            },
+            "land_records": {
+                "original_owner": form_data.get("original_owner", ""),
+                "current_owner": form_data.get("current_owner", ""),
+                "owner_since": form_data.get("owner_since", ""),
+                "mutation_number": form_data.get("mutation_number", ""),
+                "rtc_number": form_data.get("rtc_number", ""),
+                "pattadar_passbook": form_data.get("passbook", ""),
+                "lrc_number": form_data.get("lrc", ""),
+            },
+            "linked_cases": [{
+                "court": form_data.get("court", ""),
+                "bench": form_data.get("bench", ""),
+                "case_type": form_data.get("case_type", ""),
+                "case_id": form_data.get("case_number", ""),
+                "filed_date": form_data.get("filed_date", ""),
+                "next_hearing": form_data.get("next_hearing_date", ""),
+                "description": form_data.get("case_description", ""),
+                "plaintiffs": form_data.get("plaintiffs", ""),
+                "defendants": form_data.get("defendants", ""),
+                "fir_details": {
+                    "fir_number": form_data.get("fir_number", ""),
+                    "fir_date": form_data.get("fir_date", ""),
+                    "police_station": form_data.get("police_station", ""),
+                    "status": form_data.get("fir_status", ""),
+                    "ipc_section": form_data.get("ipc_section", ""),
+                    "offense_description": form_data.get("offense_description", ""),
+                    "filed_by": form_data.get("filed_by", ""),
+                    "investigating_officer": form_data.get("investigating_officer", ""),
+                }
+            }],
+            "created_at": datetime.now().isoformat(),
+            "updated_at": datetime.now().isoformat()
+        }
         
         # Save files
         upload_id = str(uuid.uuid4())
-        case_doc_path = await save_upload_file(case_doc, sub_directory=upload_id)
-        fir_doc_path = await save_upload_file(fir_doc, sub_directory=upload_id)
-        land_doc_path = await save_upload_file(land_doc, sub_directory=upload_id)
+        docs = {
+            "case_doc": await save_upload_file(case_doc, sub_directory=upload_id),
+            "fir_doc": await save_upload_file(fir_doc, sub_directory=upload_id),
+            "land_doc": await save_upload_file(land_doc, sub_directory=upload_id),
+            "survey_report": await save_upload_file(survey_report, sub_directory=upload_id),
+            "rtc_doc": await save_upload_file(rtc_doc, sub_directory=upload_id),
+            "mutation_deed": await save_upload_file(mutation_deed, sub_directory=upload_id),
+        }
         
-        # Update data with file paths
-        if "linked_cases" not in data or not data["linked_cases"]:
-            data["linked_cases"] = [{}]
-            
-        case = data["linked_cases"][0]
-        if case_doc_path:
-            case["case_document_path"] = case_doc_path
-            
-        if fir_doc_path:
-            if "fir_details" not in case:
-                case["fir_details"] = {}
-            case["fir_details"]["file_path"] = fir_doc_path
-            
-        if land_doc_path:
-            if "land_file" not in data:
-                data["land_file"] = {}
-            data["land_file"]["file_path"] = land_doc_path
+        # Map file paths to the record
+        case_ref = data["linked_cases"][0]
+        if docs["case_doc"]: case_ref["case_document_path"] = docs["case_doc"]
+        if docs["fir_doc"]: case_ref["fir_details"]["file_path"] = docs["fir_doc"]
+        if docs["land_doc"]: data["land_file_path"] = docs["land_doc"]
+        if docs["survey_report"]: data["survey_report_path"] = docs["survey_report"]
+        if docs["rtc_doc"]: data["rtc_path"] = docs["rtc_doc"]
+        if docs["mutation_deed"]: data["mutation_deed_path"] = docs["mutation_deed"]
 
         uploads = load_admin_uploads()
         uploads.append(data)
         save_admin_uploads(uploads)
 
-        logger.info(f"Admin {admin_id} uploaded multipart: {village} #{survey_number}")
-        return JSONResponse(content={"status": "ok", "message": "Parcel and files uploaded successfully"})
+        logger.info(f"Admin {admin_id} uploaded comprehensive case: {data['village']} #{data['survey_number']}")
+        return JSONResponse(content={"status": "ok", "message": "Comprehensive case record and documents uploaded successfully"})
     except Exception as e:
         logger.error(f"Multipart upload error: {e}")
         raise HTTPException(status_code=500, detail="Multipart upload failed")
