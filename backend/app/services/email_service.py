@@ -155,37 +155,43 @@ class EmailSender:
         if not settings.smtp_user or not settings.smtp_password:
             logger.warning("SMTP credentials not configured; email not sent.")
             return False
+
+        # Use smtp_user as sender if sender_email is a placeholder or not set
+        from_email = settings.sender_email
+        if not from_email or "bhoomi.local" in from_email:
+            from_email = settings.smtp_user
+            logger.info(f"Using SMTP user as sender: {from_email}")
+
+        msg = MIMEMultipart("alternative")
+        msg["Subject"] = subject
+        msg["From"] = f"{settings.sender_name} <{from_email}>"
+        msg["To"] = to_email
+        msg.attach(MIMEText(html_body, "html"))
+
+        # Attempt 1: STARTTLS on configured port (usually 587)
         try:
-            # Use smtp_user as sender if sender_email is a placeholder or not set
-            from_email = settings.sender_email
-            if not from_email or "bhoomi.local" in from_email:
-                from_email = settings.smtp_user
-                logger.info(f"Using SMTP user as sender: {from_email}")
-
-            msg = MIMEMultipart("alternative")
-            msg["Subject"] = subject
-            msg["From"] = f"{settings.sender_name} <{from_email}>"
-            msg["To"] = to_email
-            msg.attach(MIMEText(html_body, "html"))
-
-            logger.info(f"Connecting to {settings.smtp_server}:{settings.smtp_port} ...")
+            logger.info(f"Attempt 1: STARTTLS to {settings.smtp_server}:{settings.smtp_port}")
             with smtplib.SMTP(settings.smtp_server, settings.smtp_port, timeout=15) as srv:
                 srv.ehlo()
                 srv.starttls()
                 srv.ehlo()
                 srv.login(settings.smtp_user, settings.smtp_password)
                 srv.sendmail(from_email, to_email, msg.as_string())
-            logger.info(f"Email sent to {to_email}")
+            logger.info(f"Email sent to {to_email} via STARTTLS")
             return True
-        except smtplib.SMTPAuthenticationError as e:
-            logger.error(f"SMTP authentication failed: {e}")
-            return False
-        except smtplib.SMTPRecipientsRefused as e:
-            logger.error(f"Recipient refused ({to_email}): {e}")
-            return False
-        except smtplib.SMTPException as e:
-            logger.error(f"SMTP error sending to {to_email}: {e}")
-            return False
-        except Exception as e:
-            logger.error(f"Failed to send email to {to_email}: {type(e).__name__}: {e}")
-            return False
+        except Exception as e1:
+            logger.warning(f"STARTTLS failed: {type(e1).__name__}: {e1}")
+
+        # Attempt 2: SMTP_SSL on port 465
+        try:
+            logger.info(f"Attempt 2: SMTP_SSL to {settings.smtp_server}:465")
+            with smtplib.SMTP_SSL(settings.smtp_server, 465, timeout=15) as srv:
+                srv.login(settings.smtp_user, settings.smtp_password)
+                srv.sendmail(from_email, to_email, msg.as_string())
+            logger.info(f"Email sent to {to_email} via SMTP_SSL")
+            return True
+        except Exception as e2:
+            logger.error(f"SMTP_SSL also failed: {type(e2).__name__}: {e2}")
+
+        logger.error(f"All email delivery attempts failed for {to_email}")
+        return False

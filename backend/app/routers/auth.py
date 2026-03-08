@@ -84,22 +84,29 @@ async def register(request: Request):
         save_users(users)
 
         verification_token = EmailToken.generate_token(email, token_type="verify")
-        email_sent = EmailSender.send_verification_email(
-            email, first_name, verification_token, base_url=_get_base_url(request)
-        )
-        if not email_sent:
-            logger.error(f"Failed to send verification email for: {username}")
-            raise HTTPException(
-                status_code=503,
-                detail="Account created but verification email could not be sent. Please resend.",
+        email_sent = False
+        try:
+            email_sent = EmailSender.send_verification_email(
+                email, first_name, verification_token, base_url=_get_base_url(request)
             )
+        except Exception as email_err:
+            logger.error(f"Email sending exception for {username}: {email_err}")
+
+        if not email_sent:
+            logger.warning(f"Verification email not sent for: {username} — user can resend later")
 
         logger.info(f"New user registered: {username} ({user_type})")
+        msg = (
+            "User registered successfully. Please check your email to verify your account."
+            if email_sent
+            else "Account created successfully! Please use 'Resend Verification Email' to get your verification link."
+        )
         return JSONResponse(
             status_code=201,
             content={
                 "status": "ok",
-                "message": "User registered successfully. Please check your email to verify your account.",
+                "message": msg,
+                "email_sent": email_sent,
                 "user": {
                     "username": username,
                     "email": email,
