@@ -156,17 +156,36 @@ class EmailSender:
             logger.warning("SMTP credentials not configured; email not sent.")
             return False
         try:
+            # Use smtp_user as sender if sender_email is a placeholder or not set
+            from_email = settings.sender_email
+            if not from_email or "bhoomi.local" in from_email:
+                from_email = settings.smtp_user
+                logger.info(f"Using SMTP user as sender: {from_email}")
+
             msg = MIMEMultipart("alternative")
             msg["Subject"] = subject
-            msg["From"] = f"{settings.sender_name} <{settings.sender_email}>"
+            msg["From"] = f"{settings.sender_name} <{from_email}>"
             msg["To"] = to_email
             msg.attach(MIMEText(html_body, "html"))
-            with smtplib.SMTP(settings.smtp_server, settings.smtp_port, timeout=10) as srv:
+
+            logger.info(f"Connecting to {settings.smtp_server}:{settings.smtp_port} ...")
+            with smtplib.SMTP(settings.smtp_server, settings.smtp_port, timeout=15) as srv:
+                srv.ehlo()
                 srv.starttls()
+                srv.ehlo()
                 srv.login(settings.smtp_user, settings.smtp_password)
-                srv.sendmail(settings.sender_email, to_email, msg.as_string())
+                srv.sendmail(from_email, to_email, msg.as_string())
             logger.info(f"Email sent to {to_email}")
             return True
+        except smtplib.SMTPAuthenticationError as e:
+            logger.error(f"SMTP authentication failed: {e}")
+            return False
+        except smtplib.SMTPRecipientsRefused as e:
+            logger.error(f"Recipient refused ({to_email}): {e}")
+            return False
+        except smtplib.SMTPException as e:
+            logger.error(f"SMTP error sending to {to_email}: {e}")
+            return False
         except Exception as e:
-            logger.error(f"Failed to send email to {to_email}: {e}")
+            logger.error(f"Failed to send email to {to_email}: {type(e).__name__}: {e}")
             return False
