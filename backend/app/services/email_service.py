@@ -152,7 +152,50 @@ class EmailSender:
 
     @staticmethod
     def _send_email(to_email: str, subject: str, html_body: str) -> bool:
-        # 1. SENDGRID HTTP API (Bypasses Render SMTP Block)
+        # 1. RESEND HTTP API (Best for Render Free Tier)
+        if hasattr(settings, "resend_api_key") and settings.resend_api_key:
+            import urllib.request
+            import urllib.error
+            import json
+
+            from_email = settings.sender_email or "onboarding@resend.dev"
+            sender_name = settings.sender_name or "Bhoomi Land Cases"
+            
+            payload = {
+                "from": f"{sender_name} <{from_email}>",
+                "to": [to_email],
+                "subject": subject,
+                "html": html_body
+            }
+            
+            data = json.dumps(payload).encode("utf-8")
+            req = urllib.request.Request(
+                "https://api.resend.com/emails",
+                data=data,
+                headers={
+                    "Authorization": f"Bearer {settings.resend_api_key}",
+                    "Content-Type": "application/json"
+                },
+                method="POST"
+            )
+            
+            try:
+                logger.info(f"Sending email via Resend HTTP API to {to_email}...")
+                with urllib.request.urlopen(req, timeout=10) as response:
+                    if response.status in (200, 201, 202):
+                        logger.info(f"Resend API success: email sent to {to_email}")
+                        return True
+                    else:
+                        logger.error(f"Resend API unexpected status: {response.status}")
+            except urllib.error.HTTPError as e:
+                error_body = e.read().decode('utf-8', errors='ignore')
+                logger.error(f"Resend API HTTP Error {e.code}: {error_body}")
+                if "validation_error" not in error_body:
+                    return False # Don't fallback if the API key failed explicitly
+            except Exception as e:
+                logger.warning(f"Resend API failed ({type(e).__name__}: {e}), falling back...")
+        
+        # 2. SENDGRID HTTP API (Second choice for Render)
         if hasattr(settings, "sendgrid_api_key") and settings.sendgrid_api_key:
             import urllib.request
             import urllib.error
@@ -191,11 +234,9 @@ class EmailSender:
             except urllib.error.HTTPError as e:
                 error_body = e.read().decode('utf-8', errors='ignore')
                 logger.error(f"SendGrid API HTTP Error {e.code}: {error_body}")
-                # Don't fallback to SMTP if SendGrid explicitly rejected the request
                 return False
             except Exception as e:
                 logger.warning(f"SendGrid API failed ({type(e).__name__}: {e}), falling back to SMTP...")
-                # Continue to SMTP fallback below
         
         # 2. STANDARD SMTP FALLBACK
         if not settings.smtp_user or not settings.smtp_password:

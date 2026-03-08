@@ -22,6 +22,7 @@ class Settings(BaseSettings):
     rate_limit_per_minute: int = 60
 
     # Email Configuration
+    resend_api_key: str = ""
     sendgrid_api_key: str = ""
     smtp_server: str = "smtp.gmail.com"
     smtp_port: int = 587
