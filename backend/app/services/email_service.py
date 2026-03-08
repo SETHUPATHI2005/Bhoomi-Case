@@ -152,8 +152,54 @@ class EmailSender:
 
     @staticmethod
     def _send_email(to_email: str, subject: str, html_body: str) -> bool:
+        # 1. SENDGRID HTTP API (Bypasses Render SMTP Block)
+        if hasattr(settings, "sendgrid_api_key") and settings.sendgrid_api_key:
+            import urllib.request
+            import urllib.error
+            import json
+
+            from_email = settings.sender_email or "noreply@bhoomi.local"
+            sender_name = settings.sender_name or "Bhoomi Land Cases"
+            
+            payload = {
+                "personalizations": [{"to": [{"email": to_email}]}],
+                "from": {"email": from_email, "name": sender_name},
+                "subject": subject,
+                "content": [{"type": "text/html", "value": html_body}]
+            }
+            
+            data = json.dumps(payload).encode("utf-8")
+            req = urllib.request.Request(
+                "https://api.sendgrid.com/v3/mail/send",
+                data=data,
+                headers={
+                    "Authorization": f"Bearer {settings.sendgrid_api_key}",
+                    "Content-Type": "application/json"
+                },
+                method="POST"
+            )
+            
+            try:
+                logger.info(f"Sending email via SendGrid HTTP API to {to_email}...")
+                with urllib.request.urlopen(req, timeout=10) as response:
+                    if response.status in (200, 202):
+                        logger.info(f"SendGrid API success: email sent to {to_email}")
+                        return True
+                    else:
+                        logger.error(f"SendGrid API unexpected status: {response.status}")
+                        return False
+            except urllib.error.HTTPError as e:
+                error_body = e.read().decode('utf-8', errors='ignore')
+                logger.error(f"SendGrid API HTTP Error {e.code}: {error_body}")
+                # Don't fallback to SMTP if SendGrid explicitly rejected the request
+                return False
+            except Exception as e:
+                logger.warning(f"SendGrid API failed ({type(e).__name__}: {e}), falling back to SMTP...")
+                # Continue to SMTP fallback below
+        
+        # 2. STANDARD SMTP FALLBACK
         if not settings.smtp_user or not settings.smtp_password:
-            logger.warning("SMTP credentials not configured; email not sent.")
+            logger.warning("SMTP credentials not configured AND SendGrid API key missing; email not sent.")
             return False
 
         # Use smtp_user as sender if sender_email is a placeholder or not set
@@ -168,9 +214,9 @@ class EmailSender:
         msg["To"] = to_email
         msg.attach(MIMEText(html_body, "html"))
 
-        # Attempt 1: STARTTLS on configured port (usually 587)
+        # Attempt A: STARTTLS on configured port (usually 587)
         try:
-            logger.info(f"Attempt 1: STARTTLS to {settings.smtp_server}:{settings.smtp_port}")
+            logger.info(f"Attempt A: STARTTLS to {settings.smtp_server}:{settings.smtp_port}")
             with smtplib.SMTP(settings.smtp_server, settings.smtp_port, timeout=15) as srv:
                 srv.ehlo()
                 srv.starttls()
@@ -182,9 +228,9 @@ class EmailSender:
         except Exception as e1:
             logger.warning(f"STARTTLS failed: {type(e1).__name__}: {e1}")
 
-        # Attempt 2: SMTP_SSL on port 465
+        # Attempt B: SMTP_SSL on port 465
         try:
-            logger.info(f"Attempt 2: SMTP_SSL to {settings.smtp_server}:465")
+            logger.info(f"Attempt B: SMTP_SSL to {settings.smtp_server}:465")
             with smtplib.SMTP_SSL(settings.smtp_server, 465, timeout=15) as srv:
                 srv.login(settings.smtp_user, settings.smtp_password)
                 srv.sendmail(from_email, to_email, msg.as_string())
