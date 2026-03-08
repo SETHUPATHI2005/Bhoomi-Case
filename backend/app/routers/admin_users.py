@@ -46,21 +46,47 @@ async def get_user_details(username: str, admin_id: str = Depends(verify_admin))
 
 @router.post("/{username}/verify")
 async def verify_user(username: str, admin_id: str = Depends(verify_admin)):
-    """Approve/verify a user account."""
+    """Approve/verify a user account (also marks email as verified)."""
     try:
         users = load_users()
         idx = next((i for i, u in enumerate(users) if u.get("username") == username), None)
         if idx is None:
             raise HTTPException(status_code=404, detail="User not found")
-        users[idx].update({"verified": True, "verified_at": datetime.now().isoformat(), "verified_by": admin_id})
+        users[idx].update({
+            "verified": True,
+            "verified_at": datetime.now().isoformat(),
+            "verified_by": admin_id,
+            "email_verified": True,
+            "email_verified_at": datetime.now().isoformat(),
+        })
         save_users(users)
         logger.info(f"Admin {admin_id} verified user: {username}")
-        return JSONResponse(content={"status": "ok", "message": f"User {username} verified successfully"})
+        return JSONResponse(content={"status": "ok", "message": f"User {username} verified successfully (email also marked verified)"})
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"Verify user error: {e}")
         raise HTTPException(status_code=500, detail="Verification failed")
+
+
+@router.post("/{username}/verify-email")
+async def admin_verify_email(username: str, admin_id: str = Depends(verify_admin)):
+    """Admin endpoint to manually mark a user's email as verified."""
+    try:
+        users = load_users()
+        idx = next((i for i, u in enumerate(users) if u.get("username") == username), None)
+        if idx is None:
+            raise HTTPException(status_code=404, detail="User not found")
+        users[idx]["email_verified"] = True
+        users[idx]["email_verified_at"] = datetime.now().isoformat()
+        save_users(users)
+        logger.info(f"Admin {admin_id} manually verified email for: {username}")
+        return JSONResponse(content={"status": "ok", "message": f"Email verified for {username}"})
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Admin verify email error: {e}")
+        raise HTTPException(status_code=500, detail="Email verification failed")
 
 
 @router.post("/{username}/reject")
