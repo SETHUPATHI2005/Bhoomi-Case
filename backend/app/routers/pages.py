@@ -26,9 +26,7 @@ async def search_page():
     return FileResponse(STATIC / "index.html")
 
 
-@router.get("/login")
-async def login_page():
-    return FileResponse(STATIC / "login.html")
+
 
 
 @router.get("/auth")
@@ -36,9 +34,7 @@ async def auth_page():
     return FileResponse(STATIC / "auth.html")
 
 
-@router.get("/register")
-async def register_page():
-    return FileResponse(STATIC / "register.html")
+
 
 
 @router.get("/dashboard")
