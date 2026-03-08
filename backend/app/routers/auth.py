@@ -170,6 +170,12 @@ async def login(request: Request):
         if user.get("password") != hash_password(password):
             raise HTTPException(status_code=401, detail="Invalid password")
 
+        if not user.get("verified", False):
+            raise HTTPException(
+                status_code=403,
+                detail="Account pending admin approval. Please wait for verification.",
+            )
+
         token = generate_token()
         tokens = load_tokens()
         tokens.append({"token": token, "username": username, "created_at": datetime.now().isoformat()})
