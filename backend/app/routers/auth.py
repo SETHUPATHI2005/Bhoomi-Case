@@ -23,9 +23,26 @@ from app.services.user_service import (
     update_user_profile,
 )
 
+from app.core.config import get_settings
+
 router = APIRouter(tags=["auth"])
 logger = logging.getLogger("router.auth")
 
+@router.get("/email-config-status")
+async def get_email_config_status():
+    """Diagnostic endpoint to check if email environment variables are loaded (safely)."""
+    settings = get_settings()
+    return JSONResponse(content={
+        "status": "ok",
+        "email_enabled": settings.enable_email,
+        "smtp_server_configured": bool(settings.smtp_server),
+        "smtp_server": settings.smtp_server,
+        "smtp_port": settings.smtp_port,
+        "smtp_user_configured": bool(settings.smtp_user),
+        "smtp_user_preview": settings.smtp_user[:4] + "***" if settings.smtp_user else None,
+        "smtp_password_configured": bool(settings.smtp_password),
+        "sender_email": settings.sender_email
+    })
 
 def _get_base_url(request: Request) -> str:
     return str(request.base_url).rstrip("/")
